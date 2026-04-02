@@ -7,78 +7,191 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #000; overflow-x: hidden; }
-        .appbar { position: fixed; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 100; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(220,38,38,.3); box-shadow: 0 2px 20px rgba(0,0,0,.5); }
-        .appbar-title { color: #dc2626; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px; }
-        .appbar-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-        .btn { background: transparent; border: 1px solid #dc2626; color: #dc2626; padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .3s; font-family: inherit; }
+        
+        /* App Bar */
+        .appbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0,0,0,0.95);
+            backdrop-filter: blur(10px);
+            z-index: 100;
+            padding: 14px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(220,38,38,.3);
+        }
+        .appbar-title { color: #dc2626; font-size: 1.4rem; font-weight: 700; }
+        .appbar-actions { display: flex; gap: 12px; align-items: center; }
+        .btn {
+            background: transparent;
+            border: 1px solid #dc2626;
+            color: #dc2626;
+            padding: 7px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .3s;
+        }
         .btn:hover { background: #dc2626; color: #000; transform: translateY(-2px); }
-        .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-        .stats { color: #fff; font-size: 13px; background: rgba(220,38,38,.15); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(220,38,38,.3); }
-        #syncStatus { font-size: 12px; padding: 5px 10px; border-radius: 20px; border: 1px solid #88888844; color: #888; background: #88888811; transition: all .4s; white-space: nowrap; }
-        #configBanner { position: fixed; top: 60px; left: 0; right: 0; background: #1a0000; border-bottom: 1px solid #dc2626; padding: 12px 20px; z-index: 99; display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
-        #configBanner.visible { display: flex; }
-        #configBanner p { color: #dc2626; font-size: 13px; flex: 1; min-width: 200px; }
-        #configBanner input { background: #111; border: 1px solid #dc2626; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; width: 220px; font-family: monospace; }
-        #configBanner input::placeholder { color: #555; }
-        #uploadProgress { position: fixed; top: 60px; left: 0; right: 0; height: 3px; background: #111; z-index: 98; display: none; }
-        #uploadProgressBar { height: 100%; background: #dc2626; transition: width .3s ease; width: 0%; }
-        .gallery { margin-top: 70px; padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 3px; background: #000; }
-        .gallery.has-config { margin-top: 120px; }
-        .gallery-item { position: relative; aspect-ratio: 1; overflow: hidden; cursor: pointer; background: #111; transition: transform .3s; }
-        .gallery-item:hover { transform: scale(.98); }
-        .gallery-item img, .gallery-item video { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
-        .gallery-item:hover img { transform: scale(1.06); }
-        .gallery-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,.85), transparent); padding: 28px 12px 10px; opacity: 0; transition: opacity .3s; }
+        .stats {
+            color: #fff;
+            font-size: 13px;
+            background: rgba(220,38,38,.15);
+            padding: 5px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(220,38,38,.3);
+        }
+        
+        /* Gallery */
+        .gallery {
+            margin-top: 70px;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 3px;
+            background: #000;
+        }
+        .gallery-item {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            cursor: pointer;
+            background: #111;
+        }
+        .gallery-item img, .gallery-item video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .gallery-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,.85), transparent);
+            padding: 28px 12px 10px;
+            opacity: 0;
+            transition: opacity .3s;
+        }
         .gallery-item:hover .gallery-overlay { opacity: 1; }
-        .gallery-name { color: #fff; font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .delete-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,.7); border: 1px solid #dc2626; width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; opacity: 0; color: #dc2626; font-size: 16px; font-weight: bold; }
+        .gallery-name { color: #fff; font-size: 12px; }
+        .delete-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,.7);
+            border: 1px solid #dc2626;
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            color: #dc2626;
+        }
         .gallery-item:hover .delete-btn { opacity: 1; }
-        .delete-btn:hover { background: #dc2626; color: #000; transform: scale(1.1); }
-        .fullscreen-modal { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; overflow: hidden; }
-        .fullscreen-modal.active { display: block; }
-        .modal-stage { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
-        .slide-track { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-        .slide-card { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; will-change: transform, opacity; transition: transform .55s cubic-bezier(.4,0,.2,1), opacity .55s cubic-bezier(.4,0,.2,1); }
-        .slide-card.current  { transform: translateX(0) scale(1); opacity: 1; }
-        .slide-card.next-off { transform: translateX(100%) scale(.9); opacity: 0; }
-        .slide-card.prev-off { transform: translateX(-100%) scale(.9); opacity: 0; }
-        .slide-card.exit-left  { transform: translateX(-110%) scale(.85) rotateY(15deg); opacity: 0; }
-        .slide-card.exit-right { transform: translateX(110%) scale(.85) rotateY(-15deg); opacity: 0; }
-        .modal-media { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 0 60px rgba(220,38,38,.25); user-select: none; pointer-events: none; border-radius: 4px; }
-        .slide-card.dragging { transition: none !important; }
-        .modal-arrow { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,.6); backdrop-filter: blur(8px); border: 1px solid rgba(220,38,38,.4); color: #dc2626; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 22px; z-index: 1002; transition: all .25s; user-select: none; }
-        .modal-arrow:hover { background: #dc2626; color: #000; border-color: #dc2626; }
-        .modal-arrow.hidden { opacity: 0; pointer-events: none; }
-        #arrowPrev { left: 14px; }
-        #arrowNext { right: 14px; }
-        #slideCounter { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.6); backdrop-filter: blur(8px); color: #dc2626; font-size: 13px; font-weight: 600; padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(220,38,38,.3); z-index: 1002; }
-        .close-modal { position: fixed; top: 16px; right: 16px; background: rgba(0,0,0,.7); border: 1px solid #dc2626; color: #dc2626; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 26px; z-index: 1002; backdrop-filter: blur(10px); transition: all .3s; }
-        .close-modal:hover { background: #dc2626; color: #000; transform: rotate(90deg); }
-        .modal-info { position: fixed; bottom: 18px; left: 18px; right: 18px; background: rgba(0,0,0,.8); backdrop-filter: blur(10px); padding: 10px 18px; border-radius: 12px; border-left: 3px solid #dc2626; z-index: 1002; color: #fff; font-size: 14px; }
-        .modal-info-name { font-weight: 600; margin-bottom: 2px; }
-        .modal-info-meta { font-size: 12px; color: #dc2626; }
-        #swipeDots { position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 1002; }
-        .swipe-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(220,38,38,.3); transition: all .3s; }
-        .swipe-dot.active { background: #dc2626; transform: scale(1.4); }
-        .upload-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.95); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
-        .upload-overlay.active { display: flex; }
-        .upload-area { background: #111; border: 2px dashed #dc2626; border-radius: 16px; padding: 50px 36px; text-align: center; max-width: 480px; width: 90%; cursor: pointer; transition: all .3s; }
-        .upload-area:hover, .upload-area.drag-over { border-color: #f87171; background: #1a0000; transform: scale(1.02); }
+        
+        /* Upload Overlay - VERSION SIMPLIFIÉE */
+        .upload-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+        }
+        .upload-overlay.active {
+            display: flex !important;
+        }
+        .upload-area {
+            background: #111;
+            border: 2px dashed #dc2626;
+            border-radius: 16px;
+            padding: 50px 36px;
+            text-align: center;
+            max-width: 480px;
+            width: 90%;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: #f87171;
+            background: #1a0000;
+        }
         .upload-icon { font-size: 48px; margin-bottom: 16px; color: #dc2626; }
         .upload-text { color: #fff; font-size: 16px; margin-bottom: 8px; }
         .upload-subtext { color: #555; font-size: 12px; }
-        .empty-state { grid-column: 1/-1; text-align: center; padding: 80px 20px; }
-        .empty-state-icon { font-size: 64px; margin-bottom: 20px; }
-        .empty-state p { color: #888; font-size: 16px; margin-top: 6px; }
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 3px; }
+        
+        /* Modal */
+        .fullscreen-modal {
+            position: fixed;
+            inset: 0;
+            background: #000;
+            z-index: 1000;
+            display: none;
+        }
+        .fullscreen-modal.active { display: block; }
+        .modal-stage {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-media {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        .close-modal {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            background: rgba(0,0,0,.7);
+            border: 1px solid #dc2626;
+            color: #dc2626;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 26px;
+            z-index: 1002;
+        }
+        .modal-info {
+            position: fixed;
+            bottom: 18px;
+            left: 18px;
+            right: 18px;
+            background: rgba(0,0,0,.8);
+            backdrop-filter: blur(10px);
+            padding: 10px 18px;
+            border-radius: 12px;
+            border-left: 3px solid #dc2626;
+            z-index: 1002;
+            color: #fff;
+        }
+        .empty-state {
+            grid-column: 1/-1;
+            text-align: center;
+            padding: 80px 20px;
+            color: #888;
+        }
         @media (max-width: 640px) {
-            .appbar { padding: 10px 14px; }
-            .appbar-title { font-size: 1.1rem; }
-            .btn { padding: 6px 11px; font-size: 12px; }
             .gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-            #syncStatus { display: none; }
         }
     </style>
 </head>
@@ -88,20 +201,10 @@
     <div class="appbar-title">JOYEUX ANNIVERSAIRE</div>
     <div class="appbar-actions">
         <span class="stats" id="stats">0 fichier</span>
-        <span id="syncStatus">⟳ Connexion…</span>
         <button class="btn" id="uploadBtn">IMPORTER</button>
     </div>
 </div>
 
-<div id="configBanner">
-    <p>⚙️ Configure ton projet Supabase :</p>
-    <input id="cfgUrl" type="text" placeholder="Project URL (https://xxx.supabase.co)" />
-    <input id="cfgKey" type="text" placeholder="Anon/public key" />
-    <button class="btn" onclick="applyConfig()">Enregistrer</button>
-    <button class="btn" style="border-color:#555;color:#555" onclick="dismissConfig()">Ignorer (local)</button>
-</div>
-
-<div id="uploadProgress"><div id="uploadProgressBar"></div></div>
 <div class="gallery" id="gallery"></div>
 
 <!-- Upload Overlay -->
@@ -117,446 +220,324 @@
 <!-- Hidden file input -->
 <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none">
 
+<!-- Fullscreen Modal -->
 <div class="fullscreen-modal" id="fullscreenModal">
-    <div id="slideCounter">1 / 1</div>
     <div class="close-modal" id="closeModal">×</div>
-    <button class="modal-arrow" id="arrowPrev">‹</button>
-    <button class="modal-arrow" id="arrowNext">›</button>
     <div class="modal-stage" id="modalStage">
-        <div class="slide-track" id="slideTrack"></div>
+        <img class="modal-media" id="modalImage" style="display: none;">
+        <video class="modal-media" id="modalVideo" controls style="display: none;"></video>
     </div>
-    <div id="swipeDots"></div>
     <div class="modal-info" id="modalInfo">
-        <div class="modal-info-name" id="infoName"></div>
-        <div class="modal-info-meta" id="infoMeta"></div>
+        <div id="infoName"></div>
+        <div id="infoMeta" style="font-size: 12px; color: #dc2626;"></div>
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-// ══════════════════════════════════════════════
-//  CONFIG  — clés lues depuis localStorage
-// ══════════════════════════════════════════════
-const SUPABASE_URL = localStorage.getItem('sb_url') || 'https://gvnvnoisofvalibuqzun.supabase.co';
-const SUPABASE_KEY = localStorage.getItem('sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2bnZub2lzb2Z2YWxpYnVxenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODQ0OTgsImV4cCI6MjA5MDY2MDQ5OH0.8Dg2kIy8Qwk09T2l9XeiBdvUdgv8cVNb2oXBJLMsf38';
-const BUCKET = 'gallery';
-const TABLE  = 'gallery_files';
-
-let supabase    = null;
-let files       = [];
+// DONNÉES DE DÉMO
+let files = [];
 let currentIndex = 0;
-let isAnimating  = false;
-let currentCard  = null;
-let dragStartX = 0, dragStartY = 0, dragDeltaX = 0;
-let isDragging = false, isHorizDrag = null;
 
-// ══════════════════════════════════════════════
-//  INIT
-// ══════════════════════════════════════════════
-function init() {
-    setupUpload();
-    setupKeyboard();
-    setupModalControls();
-    setupSwipe();
+// Images de démo
+const demoImages = [
+    'https://picsum.photos/id/104/800/600',
+    'https://picsum.photos/id/106/800/600',
+    'https://picsum.photos/id/107/800/600',
+    'https://picsum.photos/id/108/800/600',
+    'https://picsum.photos/id/116/800/600',
+    'https://picsum.photos/id/119/800/600'
+];
 
-    try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-        setSyncStatus('loading');
-        loadFiles();
-    } catch(e) {
-        console.error('Supabase init error', e);
-        showConfigBanner();
-        loadLocalFallback();
-    }
-}
-
-// ══════════════════════════════════════════════
-//  BANNER CONFIG
-// ══════════════════════════════════════════════
-function showConfigBanner() {
-    document.getElementById('configBanner').classList.add('visible');
-    document.getElementById('gallery').classList.add('has-config');
-}
-function dismissConfig() {
-    document.getElementById('configBanner').classList.remove('visible');
-    document.getElementById('gallery').classList.remove('has-config');
-    setSyncStatus('Mode local', '#f59e0b');
-}
-function applyConfig() {
-    const url = document.getElementById('cfgUrl').value.trim();
-    const key = document.getElementById('cfgKey').value.trim();
-    if (!url || !key) { alert('Remplis les deux champs.'); return; }
-    localStorage.setItem('sb_url', url);
-    localStorage.setItem('sb_key', key);
-    location.reload();
-}
-
-// ══════════════════════════════════════════════
-//  SYNC STATUS
-// ══════════════════════════════════════════════
-function setSyncStatus(msg, color) {
-    const el = document.getElementById('syncStatus');
-    if (!el) return;
-    const palette = {
-        loading: ['⟳ Chargement…', '#888'],
-        saving:  ['⟳ Envoi…',      '#f59e0b'],
-        synced:  ['✓ Synchronisé',  '#22c55e'],
-        error:   ['✗ Erreur',       '#dc2626'],
-    };
-    const [text, clr] = palette[msg] ? palette[msg] : [msg, color || '#888'];
-    el.textContent   = text;
-    el.style.color   = clr;
-    el.style.borderColor = clr + '55';
-    el.style.background  = clr + '18';
-}
-
-// ══════════════════════════════════════════════
-//  LOAD from Supabase
-// ══════════════════════════════════════════════
-async function loadFiles() {
-    if (!supabase) return;
-    setSyncStatus('loading');
-    try {
-        const { data, error } = await supabase
-            .from(TABLE).select('*').order('created_at', { ascending: false });
-        if (error) throw error;
-        files = (data || []).map(r => ({
-            id: r.id, name: r.name, size: r.size,
-            type: r.mime_type, fileType: r.file_type,
-            url: r.url, date: r.created_at
-        }));
-        setSyncStatus('synced');
-        renderGallery();
-    } catch(e) {
-        console.error('Load error', e);
-        setSyncStatus('error');
-        loadLocalFallback();
-    }
-}
-
-function loadLocalFallback() {
-    files = [104,106,107,108,116,119].map((id, i) => ({
-        id: 'demo-' + i, name: `Photo ${i+1}.jpg`, size: 0,
-        type: 'image/jpeg', fileType: 'image',
-        url: `https://picsum.photos/id/${id}/800/600`,
-        date: new Date().toISOString()
-    }));
+// Initialiser avec des images de démo
+function initDemo() {
+    files = [];
+    demoImages.forEach((url, index) => {
+        files.push({
+            id: 'demo-' + index,
+            name: 'Photo ' + (index + 1) + '.jpg',
+            size: 0,
+            type: 'image/jpeg',
+            fileType: 'image',
+            url: url,
+            date: new Date().toISOString()
+        });
+    });
     renderGallery();
 }
 
-// ══════════════════════════════════════════════
-//  ADD FILES
-// ══════════════════════════════════════════════
+// Formater la taille
+function formatSize(bytes) {
+    if (!bytes || bytes === 0) return '—';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+// Lire un fichier en DataURL
+function readFileAsDataURL(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// Ajouter des fichiers
 async function addFiles(newFiles) {
     // Fermer l'overlay
-    document.getElementById('uploadOverlay').classList.remove('active');
+    const overlay = document.getElementById('uploadOverlay');
+    overlay.classList.remove('active');
     
-    const prog    = document.getElementById('uploadProgress');
-    const progBar = document.getElementById('uploadProgressBar');
-    prog.style.display = 'block';
-
-    for (let i = 0; i < newFiles.length; i++) {
-        const file     = newFiles[i];
-        const fileType = file.type.startsWith('image/') ? 'image'
-                       : file.type.startsWith('video/') ? 'video' : 'document';
-        progBar.style.width = Math.round((i / newFiles.length) * 90) + '%';
-        setSyncStatus('saving');
-
-        if (!supabase) {
-            const url = await readAsDataURL(file);
-            files.unshift({ id: Date.now()+i, name: file.name, size: file.size, type: file.type, fileType, url, date: new Date().toISOString() });
-            renderGallery();
-            continue;
-        }
-
-        try {
-            const path = `${Date.now()}_${file.name.replace(/\s/g,'_')}`;
-            const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: false });
-            if (upErr) throw upErr;
-
-            const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
-            const url = urlData.publicUrl;
-
-            const { data: row, error: dbErr } = await supabase.from(TABLE).insert({
-                name: file.name, size: file.size, mime_type: file.type,
-                file_type: fileType, url, storage_path: path
-            }).select().single();
-            if (dbErr) throw dbErr;
-
-            files.unshift({ id: row.id, name: row.name, size: row.size, type: row.mime_type, fileType: row.file_type, url: row.url, date: row.created_at });
-            renderGallery();
-        } catch(e) {
-            console.error('Upload error', e);
-            setSyncStatus('error');
-        }
+    for (const file of newFiles) {
+        const fileType = file.type.startsWith('image/') ? 'image' : 
+                        file.type.startsWith('video/') ? 'video' : 'document';
+        
+        const url = await readFileAsDataURL(file);
+        
+        files.unshift({
+            id: Date.now() + '-' + Math.random(),
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            fileType: fileType,
+            url: url,
+            date: new Date().toISOString()
+        });
     }
-
-    progBar.style.width = '100%';
-    setTimeout(() => { prog.style.display = 'none'; progBar.style.width = '0%'; }, 600);
-    setSyncStatus('synced');
-}
-
-function readAsDataURL(file) {
-    return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
-}
-
-// ══════════════════════════════════════════════
-//  DELETE
-// ══════════════════════════════════════════════
-async function deleteFile(id, e) {
-    if (e) e.stopPropagation();
-    if (!confirm('Supprimer ce fichier ?')) return;
-    const file = files.find(f => String(f.id) === String(id));
-
-    if (supabase && file && !String(id).startsWith('demo')) {
-        setSyncStatus('saving');
-        try {
-            const path = new URL(file.url).pathname.split(`/${BUCKET}/`)[1];
-            if (path) await supabase.storage.from(BUCKET).remove([path]);
-            await supabase.from(TABLE).delete().eq('id', id);
-        } catch(e) { console.warn(e); }
-        setSyncStatus('synced');
-    }
-
-    files = files.filter(f => String(f.id) !== String(id));
+    
     renderGallery();
-    if (document.getElementById('fullscreenModal').classList.contains('active')) {
-        files.length === 0 ? closeModal() : openModal(Math.min(currentIndex, files.length - 1));
+}
+
+// Supprimer un fichier
+function deleteFile(id, event) {
+    if (event) event.stopPropagation();
+    if (confirm('Supprimer ce fichier ?')) {
+        files = files.filter(f => f.id !== id);
+        renderGallery();
+        if (document.getElementById('fullscreenModal').classList.contains('active')) {
+            closeModal();
+        }
     }
 }
 
-// ══════════════════════════════════════════════
-//  RENDER GALLERY
-// ══════════════════════════════════════════════
+// Ouvrir le modal
+function openModal(index) {
+    currentIndex = index;
+    const modal = document.getElementById('fullscreenModal');
+    const modalImg = document.getElementById('modalImage');
+    const modalVideo = document.getElementById('modalVideo');
+    const file = files[currentIndex];
+    
+    // Cacher les deux et afficher le bon
+    modalImg.style.display = 'none';
+    modalVideo.style.display = 'none';
+    
+    if (file.fileType === 'image') {
+        modalImg.src = file.url;
+        modalImg.style.display = 'block';
+    } else if (file.fileType === 'video') {
+        modalVideo.src = file.url;
+        modalVideo.style.display = 'block';
+        modalVideo.load();
+        modalVideo.play();
+    }
+    
+    document.getElementById('infoName').textContent = file.name;
+    document.getElementById('infoMeta').textContent = `${file.fileType.toUpperCase()} • ${formatSize(file.size)}`;
+    
+    modal.classList.add('active');
+}
+
+// Fermer le modal
+function closeModal() {
+    const modal = document.getElementById('fullscreenModal');
+    const modalVideo = document.getElementById('modalVideo');
+    modalVideo.pause();
+    modalVideo.src = '';
+    modal.classList.remove('active');
+}
+
+// Navigation
+function nextImage() {
+    if (currentIndex < files.length - 1) {
+        openModal(currentIndex + 1);
+    }
+}
+
+function prevImage() {
+    if (currentIndex > 0) {
+        openModal(currentIndex - 1);
+    }
+}
+
+// Rendre la galerie
 function renderGallery() {
     const gallery = document.getElementById('gallery');
-    document.getElementById('stats').textContent = `${files.length} fichier${files.length !== 1 ? 's' : ''}`;
-
+    const stats = document.getElementById('stats');
+    
+    stats.textContent = `${files.length} fichier${files.length !== 1 ? 's' : ''}`;
+    
     if (files.length === 0) {
-        gallery.innerHTML = `<div class="empty-state"><div class="empty-state-icon" style="color:#dc2626">📷</div><p style="font-size:18px;color:#ccc">La galerie est vide</p><p>Clique sur <strong style="color:#dc2626">IMPORTER</strong> pour ajouter des photos</p></div>`;
+        gallery.innerHTML = `<div class="empty-state"><div style="font-size:64px;margin-bottom:20px;color:#dc2626">📷</div><p style="font-size:18px;color:#ccc">La galerie est vide</p><p>Clique sur <strong style="color:#dc2626">IMPORTER</strong> pour ajouter des photos</p></div>`;
         return;
     }
-
-    gallery.innerHTML = files.map((f, idx) => `
+    
+    gallery.innerHTML = files.map((file, idx) => `
         <div class="gallery-item" onclick="openModal(${idx})">
-            ${f.fileType === 'image' ? `<img src="${f.url}" alt="${f.name}" loading="lazy">`
-            : f.fileType === 'video' ? `<video src="${f.url}" muted playsinline></video>`
-            : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#dc2626;font-size:52px;">📄</div>`}
-            <div class="gallery-overlay"><div class="gallery-name">${f.name.length > 38 ? f.name.slice(0,35)+'…' : f.name}</div></div>
-            <div class="delete-btn" onclick="deleteFile('${f.id}', event)">✕</div>
-        </div>`).join('');
+            ${file.fileType === 'image' ? 
+                `<img src="${file.url}" alt="${file.name}" loading="lazy">` : 
+                `<video src="${file.url}" muted playsinline></video>`
+            }
+            <div class="gallery-overlay">
+                <div class="gallery-name">${file.name.length > 38 ? file.name.slice(0,35)+'…' : file.name}</div>
+            </div>
+            <div class="delete-btn" onclick="deleteFile('${file.id}', event)">✕</div>
+        </div>
+    `).join('');
 }
 
-// ══════════════════════════════════════════════
-//  MODAL
-// ══════════════════════════════════════════════
-function openModal(idx) {
-    currentIndex = idx;
-    document.getElementById('fullscreenModal').classList.add('active');
-    renderSlides();
-    updateCounter();
-    updateArrows();
-    renderDots();
-}
-
-function closeModal() {
-    document.getElementById('fullscreenModal').classList.remove('active');
-    document.getElementById('slideTrack').innerHTML = '';
-}
-
-function mediaEl(file) {
-    if (file.fileType === 'image') return `<img class="modal-media" src="${file.url}" alt="${file.name}">`;
-    if (file.fileType === 'video') return `<video class="modal-media" controls autoplay playsinline><source src="${file.url}" type="${file.type}"></video>`;
-    return `<div style="background:#111;padding:40px;border-radius:12px;text-align:center;border:1px solid #dc2626"><div style="font-size:64px;color:#dc2626;margin-bottom:16px">📄</div><h3 style="color:#fff">${file.name}</h3><a href="${file.url}" target="_blank" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#dc2626;color:#000;text-decoration:none;border-radius:8px;font-weight:700">Télécharger</a></div>`;
-}
-
-function renderSlides() {
-    const track = document.getElementById('slideTrack');
-    track.innerHTML = '';
-    const card = document.createElement('div');
-    card.className = 'slide-card current';
-    card.innerHTML = mediaEl(files[currentIndex]);
-    track.appendChild(card);
-    currentCard = card;
-    document.getElementById('infoName').textContent = files[currentIndex].name;
-    document.getElementById('infoMeta').textContent = `${files[currentIndex].fileType.toUpperCase()} • ${formatSize(files[currentIndex].size)}`;
-}
-
-function updateCounter() { document.getElementById('slideCounter').textContent = `${currentIndex + 1} / ${files.length}`; }
-function updateArrows() {
-    document.getElementById('arrowPrev').classList.toggle('hidden', currentIndex === 0);
-    document.getElementById('arrowNext').classList.toggle('hidden', currentIndex === files.length - 1);
-}
-function renderDots() {
-    const el = document.getElementById('swipeDots');
-    if (files.length <= 1) { el.innerHTML = ''; return; }
-    const max = Math.min(files.length, 9);
-    const start = Math.max(0, Math.min(currentIndex - 4, files.length - max));
-    el.innerHTML = Array.from({length: max}, (_, i) => {
-        const real = start + i;
-        return `<div class="swipe-dot${real === currentIndex ? ' active' : ''}"></div>`;
-    }).join('');
-}
-
-function navigateTo(newIdx, dir) {
-    if (isAnimating || newIdx < 0 || newIdx >= files.length) return;
-    isAnimating = true;
-    const track   = document.getElementById('slideTrack');
-    const oldCard = currentCard;
-    const newCard = document.createElement('div');
-    newCard.className = 'slide-card ' + (dir === 'next' ? 'next-off' : 'prev-off');
-    newCard.innerHTML = mediaEl(files[newIdx]);
-    track.appendChild(newCard);
-    newCard.getBoundingClientRect();
-    requestAnimationFrame(() => {
-        oldCard.className = 'slide-card ' + (dir === 'next' ? 'exit-left' : 'exit-right');
-        newCard.className  = 'slide-card current';
-    });
-    currentIndex = newIdx;
-    currentCard  = newCard;
-    document.getElementById('infoName').textContent = files[newIdx].name;
-    document.getElementById('infoMeta').textContent = `${files[newIdx].fileType.toUpperCase()} • ${formatSize(files[newIdx].size)}`;
-    updateCounter(); updateArrows(); renderDots();
-    setTimeout(() => { oldCard.remove(); isAnimating = false; }, 560);
-}
-
-// ══════════════════════════════════════════════
-//  SWIPE
-// ══════════════════════════════════════════════
-function setupSwipe() {
-    const modal = document.getElementById('fullscreenModal');
-    modal.addEventListener('touchstart', onDragStart, { passive: true });
-    modal.addEventListener('touchmove',  onDragMove,  { passive: false });
-    modal.addEventListener('touchend',   onDragEnd,   { passive: true });
-    modal.addEventListener('mousedown',  onDragStart);
-    modal.addEventListener('mousemove',  onDragMove);
-    modal.addEventListener('mouseup',    onDragEnd);
-    modal.addEventListener('mouseleave', onDragEnd);
-}
-
-function getClientX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
-function getClientY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
-
-function onDragStart(e) {
-    if (isAnimating || e.target.closest('.close-modal,.modal-arrow,video,a')) return;
-    dragStartX = getClientX(e); dragStartY = getClientY(e);
-    dragDeltaX = 0; isDragging = true; isHorizDrag = null;
-    if (currentCard) currentCard.classList.add('dragging');
-}
-function onDragMove(e) {
-    if (!isDragging || !currentCard) return;
-    const dx = getClientX(e) - dragStartX;
-    const dy = getClientY(e) - dragStartY;
-    if (isHorizDrag === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
-        isHorizDrag = Math.abs(dx) > Math.abs(dy);
-    if (!isHorizDrag) return;
-    if (e.cancelable) e.preventDefault();
-    dragDeltaX = dx;
-    currentCard.style.transform = `translateX(${dx}px) rotateY(${dx * 0.04}deg) scale(${1 - Math.abs(dx)/1200})`;
-    currentCard.style.opacity   = String(Math.max(0.3, 1 - Math.abs(dx)/600));
-}
-function onDragEnd() {
-    if (!isDragging || !currentCard) return;
-    isDragging = false;
-    currentCard.classList.remove('dragging');
-    if (Math.abs(dragDeltaX) > window.innerWidth * 0.28) {
-        navigateTo(currentIndex + (dragDeltaX < 0 ? 1 : -1), dragDeltaX < 0 ? 'next' : 'prev');
-    } else {
-        currentCard.style.transition = 'transform .4s cubic-bezier(.4,0,.2,1), opacity .4s';
-        currentCard.style.transform  = 'translateX(0) rotateY(0deg) scale(1)';
-        currentCard.style.opacity    = '1';
-        setTimeout(() => { if (currentCard) { currentCard.style.transition = currentCard.style.transform = currentCard.style.opacity = ''; } }, 420);
-    }
-    dragDeltaX = 0;
-}
-
-// ══════════════════════════════════════════════
-//  KEYBOARD
-// ══════════════════════════════════════════════
-function setupKeyboard() {
-    document.addEventListener('keydown', e => {
-        if (!document.getElementById('fullscreenModal').classList.contains('active')) return;
-        if (e.key === 'ArrowLeft')  navigateTo(currentIndex - 1, 'prev');
-        if (e.key === 'ArrowRight') navigateTo(currentIndex + 1, 'next');
-        if (e.key === 'Escape')     closeModal();
-    });
-}
-
-// ══════════════════════════════════════════════
-//  UPLOAD - CORRIGÉ
-// ══════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════
+// GESTION DE L'UPLOAD - SIMPLIFIÉE ET GARANTIE
+// ═══════════════════════════════════════════════════════════
 function setupUpload() {
     const uploadBtn = document.getElementById('uploadBtn');
     const uploadOverlay = document.getElementById('uploadOverlay');
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('fileInput');
-
-    // Ouvrir l'overlay au clic sur le bouton
-    uploadBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        uploadOverlay.classList.add('active');
+    
+    console.log('Setup upload - éléments trouvés:', {
+        uploadBtn: !!uploadBtn,
+        uploadOverlay: !!uploadOverlay,
+        uploadArea: !!uploadArea,
+        fileInput: !!fileInput
     });
-
-    // Fermer l'overlay si on clique sur le fond noir
-    uploadOverlay.addEventListener('click', (e) => {
-        if (e.target === uploadOverlay) {
-            uploadOverlay.classList.remove('active');
-        }
-    });
-
-    // Ouvrir le sélecteur de fichiers quand on clique sur la zone d'upload
-    uploadArea.addEventListener('click', (e) => {
-        e.stopPropagation();
-        fileInput.click();
-    });
-
-    // Gérer la sélection des fichiers
-    fileInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files.length > 0) {
-            addFiles(Array.from(e.target.files));
-            fileInput.value = ''; // Reset pour permettre de sélectionner les mêmes fichiers
-        }
-    });
-
-    // Drag & drop
-    uploadArea.addEventListener('dragover', (e) => {
-        e.preventDefault();
-        uploadArea.classList.add('drag-over');
-    });
-
-    uploadArea.addEventListener('dragleave', () => {
-        uploadArea.classList.remove('drag-over');
-    });
-
-    uploadArea.addEventListener('drop', (e) => {
-        e.preventDefault();
-        uploadArea.classList.remove('drag-over');
-        const droppedFiles = Array.from(e.dataTransfer.files);
-        if (droppedFiles.length > 0) {
-            addFiles(droppedFiles);
-        }
-    });
+    
+    // 1. Bouton IMPORTER - ouvre l'overlay
+    if (uploadBtn) {
+        uploadBtn.onclick = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Clic sur IMPORTER - ouverture overlay');
+            uploadOverlay.classList.add('active');
+        };
+    }
+    
+    // 2. Fermer l'overlay en cliquant sur le fond
+    if (uploadOverlay) {
+        uploadOverlay.onclick = function(e) {
+            if (e.target === uploadOverlay) {
+                console.log('Fermeture overlay');
+                uploadOverlay.classList.remove('active');
+            }
+        };
+    }
+    
+    // 3. Zone d'upload - ouvre le sélecteur de fichiers
+    if (uploadArea) {
+        uploadArea.onclick = function(e) {
+            e.stopPropagation();
+            console.log('Clic sur zone upload - ouverture file input');
+            fileInput.click();
+        };
+    }
+    
+    // 4. Sélection de fichiers
+    if (fileInput) {
+        fileInput.onchange = function(e) {
+            const selectedFiles = Array.from(e.target.files);
+            console.log('Fichiers sélectionnés:', selectedFiles.length);
+            if (selectedFiles.length > 0) {
+                addFiles(selectedFiles);
+                fileInput.value = '';
+            }
+        };
+    }
+    
+    // 5. Drag & drop
+    if (uploadArea) {
+        uploadArea.ondragover = function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        };
+        
+        uploadArea.ondragleave = function() {
+            uploadArea.classList.remove('drag-over');
+        };
+        
+        uploadArea.ondrop = function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const droppedFiles = Array.from(e.dataTransfer.files);
+            console.log('Fichiers drop:', droppedFiles.length);
+            if (droppedFiles.length > 0) {
+                addFiles(droppedFiles);
+            }
+        };
+    }
 }
 
+// Configuration des contrôles du modal
 function setupModalControls() {
-    document.getElementById('closeModal').addEventListener('click', closeModal);
-    document.getElementById('arrowPrev').addEventListener('click', () => navigateTo(currentIndex - 1, 'prev'));
-    document.getElementById('arrowNext').addEventListener('click', () => navigateTo(currentIndex + 1, 'next'));
+    const closeBtn = document.getElementById('closeModal');
+    if (closeBtn) {
+        closeBtn.onclick = closeModal;
+    }
+    
+    // Navigation au clavier
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('fullscreenModal');
+        if (modal.classList.contains('active')) {
+            if (e.key === 'ArrowLeft') prevImage();
+            if (e.key === 'ArrowRight') nextImage();
+            if (e.key === 'Escape') closeModal();
+        }
+    });
 }
 
-function formatSize(b) {
-    if (!b) return '—';
-    const k = 1024, u = ['B','KB','MB','GB'], i = Math.floor(Math.log(b)/Math.log(k));
-    return (b/Math.pow(k,i)).toFixed(1) + ' ' + u[i];
+// Swipe pour mobile
+function setupSwipe() {
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const modal = document.getElementById('fullscreenModal');
+    
+    modal.addEventListener('touchstart', function(e) {
+        touchStartX = e.changedTouches[0].screenX;
+    });
+    
+    modal.addEventListener('touchend', function(e) {
+        touchEndX = e.changedTouches[0].screenX;
+        const deltaX = touchEndX - touchStartX;
+        if (Math.abs(deltaX) > 50) {
+            if (deltaX > 0) {
+                prevImage();
+            } else {
+                nextImage();
+            }
+        }
+    });
 }
 
-window.openModal   = openModal;
-window.deleteFile  = deleteFile;
-window.applyConfig = applyConfig;
-window.dismissConfig = dismissConfig;
+// Initialisation
+function init() {
+    console.log('Initialisation...');
+    initDemo();
+    setupUpload();
+    setupModalControls();
+    setupSwipe();
+    console.log('Initialisation terminée');
+}
 
+// Démarrer
 init();
+
+// Exposer les fonctions globalement
+window.openModal = openModal;
+window.deleteFile = deleteFile;
+window.prevImage = prevImage;
+window.nextImage = nextImage;
+window.closeModal = closeModal;
 </script>
 </body>
 </html>
