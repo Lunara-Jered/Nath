@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Galerie Noir & Rouge</title>
+    <title>Galerie de Nath</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
@@ -272,7 +272,7 @@
 
 <!-- ── App Bar ── -->
 <div class="appbar">
-    <div class="appbar-title">GALERIE NOIR & ROUGE</div>
+    <div class="appbar-title">JOYEUX ANNIVERSAIRE</div>
     <div class="appbar-actions">
         <span class="stats" id="stats">0 fichier</span>
         <span id="syncStatus">⟳ Connexion…</span>
@@ -282,8 +282,8 @@
 
 <!-- ── Config Banner (shown when keys missing) ── -->
 <div id="configBanner">
-    <p>⚙️ Configure ton projet Supabase pour activer le stockage partagé :</p>
-    <input id="cfgUrl"   type="text" placeholder="Project URL  (https://xxx.supabase.co)" />
+    <p> Configure ton projet Supabase pour activer le stockage partagé :</p>
+    <input id="cfgUrl"   type="text" placeholder="Project URL  (https://gvnvnoisofvalibuqzun.supabase.co)" />
     <input id="cfgKey"   type="text" placeholder="Anon/public key" />
     <button class="btn" onclick="applyConfig()">Enregistrer</button>
     <button class="btn" style="border-color:#555;color:#555" onclick="dismissConfig()">Ignorer (local)</button>
@@ -298,7 +298,7 @@
 <!-- ── Upload Overlay ── -->
 <div class="upload-overlay" id="uploadOverlay">
     <div class="upload-area" id="uploadArea">
-        <div class="upload-icon">⬆</div>
+        <div class="upload-icon"></div>
         <div class="upload-text">Cliquez ou glissez vos fichiers ici</div>
         <div class="upload-subtext">Images, vidéos — tous formats acceptés</div>
         <input type="file" id="fileInput" multiple accept="image/*,video/*">
@@ -331,8 +331,8 @@
 //  CONFIG — remplace par tes vraies valeurs Supabase
 // ════════════════════════════════════════════════════════════════
 const CONFIG = {
-    supabaseUrl:  localStorage.getItem('sb_url')  || '',
-    supabaseKey:  localStorage.getItem('sb_key')  || '',
+    supabaseUrl:  localStorage.getItem('https://gvnvnoisofvalibuqzun.supabase.co')  || '',
+    supabaseKey:  localStorage.getItem('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2bnZub2lzb2Z2YWxpYnVxenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODQ0OTgsImV4cCI6MjA5MDY2MDQ5OH0.8Dg2kIy8Qwk09T2l9XeiBdvUdgv8cVNb2oXBJLMsf38')  || '',
     bucket:       'gallery',   // nom du bucket Storage Supabase
     table:        'gallery_files' // nom de la table DB
 };
@@ -380,7 +380,7 @@ function showConfigBanner() {
 function dismissConfig() {
     document.getElementById('configBanner').classList.remove('visible');
     document.querySelector('.gallery').classList.remove('has-config');
-    setSyncStatus('⚠ Mode local', '#f59e0b');
+    setSyncStatus('Mode local', '#f59e0b');
 }
 function applyConfig() {
     const url = document.getElementById('cfgUrl').value.trim();
