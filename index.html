@@ -1,1 +1,350 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Galerie de Nath</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #000; overflow-x: hidden; }
+        .appbar { position: fixed; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 100; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(220,38,38,.3); box-shadow: 0 2px 20px rgba(0,0,0,.5); }
+        .appbar-title { color: #dc2626; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px; }
+        .appbar-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+        .btn { background: transparent; border: 1px solid #dc2626; color: #dc2626; padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .3s; font-family: inherit; }
+        .btn:hover { background: #dc2626; color: #000; transform: translateY(-2px); }
+        .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
+        .stats { color: #fff; font-size: 13px; background: rgba(220,38,38,.15); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(220,38,38,.3); }
+        #syncStatus { font-size: 12px; padding: 5px 10px; border-radius: 20px; border: 1px solid #88888844; color: #888; background: #88888811; transition: all .4s; white-space: nowrap; }
+        #configBanner { position: fixed; top: 60px; left: 0; right: 0; background: #1a0000; border-bottom: 1px solid #dc2626; padding: 12px 20px; z-index: 99; display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
+        #configBanner.visible { display: flex; }
+        #configBanner p { color: #dc2626; font-size: 13px; flex: 1; min-width: 200px; }
+        #configBanner input { background: #111; border: 1px solid #dc2626; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; width: 220px; font-family: monospace; }
+        #configBanner input::placeholder { color: #555; }
+        #uploadProgress { position: fixed; top: 60px; left: 0; right: 0; height: 3px; background: #111; z-index: 98; display: none; }
+        #uploadProgressBar { height: 100%; background: #dc2626; transition: width .3s ease; width: 0%; }
+        .gallery { margin-top: 70px; padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 3px; background: #000; }
+        .gallery.has-config { margin-top: 120px; }
+        .gallery-item { position: relative; aspect-ratio: 1; overflow: hidden; cursor: pointer; background: #111; transition: transform .3s; }
+        .gallery-item:hover { transform: scale(.98); }
+        .gallery-item img, .gallery-item video { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
+        .gallery-item:hover img { transform: scale(1.06); }
+        .gallery-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,.85), transparent); padding: 28px 12px 10px; opacity: 0; transition: opacity .3s; }
+        .gallery-item:hover .gallery-overlay { opacity: 1; }
+        .gallery-name { color: #fff; font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .delete-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,.7); border: 1px solid #dc2626; width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; opacity: 0; color: #dc2626; font-size: 16px; font-weight: bold; }
+        .gallery-item:hover .delete-btn { opacity: 1; }
+        .delete-btn:hover { background: #dc2626; color: #000; transform: scale(1.1); }
+        .fullscreen-modal { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; overflow: hidden; }
+        .fullscreen-modal.active { display: block; }
+        .modal-stage { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .slide-track { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+        .slide-card { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; will-change: transform, opacity; transition: transform .55s cubic-bezier(.4,0,.2,1), opacity .55s cubic-bezier(.4,0,.2,1); }
+        .slide-card.current  { transform: translateX(0) scale(1); opacity: 1; }
+        .slide-card.next-off { transform: translateX(100%) scale(.9); opacity: 0; }
+        .slide-card.prev-off { transform: translateX(-100%) scale(.9); opacity: 0; }
+        .slide-card.exit-left  { transform: translateX(-110%) scale(.85) rotateY(15deg); opacity: 0; }
+        .slide-card.exit-right { transform: translateX(110%) scale(.85) rotateY(-15deg); opacity: 0; }
+        .modal-media { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 0 60px rgba(220,38,38,.25); user-select: none; pointer-events: none; border-radius: 4px; }
+        .slide-card.dragging { transition: none !important; }
+        .modal-arrow { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,.6); backdrop-filter: blur(8px); border: 1px solid rgba(220,38,38,.4); color: #dc2626; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 22px; z-index: 1002; transition: all .25s; user-select: none; }
+        .modal-arrow:hover { background: #dc2626; color: #000; border-color: #dc2626; }
+        .modal-arrow.hidden { opacity: 0; pointer-events: none; }
+        #arrowPrev { left: 14px; }
+        #arrowNext { right: 14px; }
+        #slideCounter { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.6); backdrop-filter: blur(8px); color: #dc2626; font-size: 13px; font-weight: 600; padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(220,38,38,.3); z-index: 1002; }
+        .close-modal { position: fixed; top: 16px; right: 16px; background: rgba(0,0,0,.7); border: 1px solid #dc2626; color: #dc2626; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 26px; z-index: 1002; backdrop-filter: blur(10px); transition: all .3s; }
+        .close-modal:hover { background: #dc2626; color: #000; transform: rotate(90deg); }
+        .modal-info { position: fixed; bottom: 18px; left: 18px; right: 18px; background: rgba(0,0,0,.8); backdrop-filter: blur(10px); padding: 10px 18px; border-radius: 12px; border-left: 3px solid #dc2626; z-index: 1002; color: #fff; font-size: 14px; }
+        .modal-info-name { font-weight: 600; margin-bottom: 2px; }
+        .modal-info-meta { font-size: 12px; color: #dc2626; }
+        #swipeDots { position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 1002; }
+        .swipe-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(220,38,38,.3); transition: all .3s; }
+        .swipe-dot.active { background: #dc2626; transform: scale(1.4); }
+        .upload-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.95); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
+        .upload-overlay.active { display: flex; }
+        .upload-area { background: #111; border: 2px dashed #dc2626; border-radius: 16px; padding: 50px 36px; text-align: center; max-width: 480px; width: 90%; cursor: pointer; transition: all .3s; }
+        .upload-area:hover, .upload-area.drag-over { border-color: #f87171; background: #1a0000; transform: scale(1.02); }
+        .upload-icon { font-size: 48px; margin-bottom: 16px; }
+        .upload-text { color: #fff; font-size: 16px; margin-bottom: 8px; }
+        .upload-subtext { color: #555; font-size: 12px; }
+        .upload-area input { display: none; }
+        .empty-state { grid-column: 1/-1; text-align: center; padding: 80px 20px; }
+        .empty-state-icon { font-size: 64px; margin-bottom: 20px; }
+        .empty-state p { color: #888; font-size: 16px; margin-top: 6px; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 3px; }
+        @media (max-width: 640px) {
+            .appbar { padding: 10px 14px; }
+            .appbar-title { font-size: 1.1rem; }
+            .btn { padding: 6px 11px; font-size: 12px; }
+            .gallery { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+            #syncStatus { display: none; }
+        }
+    </style>
+</head>
+<body>
 
+<div class="appbar">
+    <div class="appbar-title">JOYEUX ANNIVERSAIRE</div>
+    <div class="appbar-actions">
+        <span class="stats" id="stats">0 fichier</span>
+        <span id="syncStatus">⟳ Connexion…</span>
+        <button class="btn" id="uploadBtn">IMPORTER</button>
+    </div>
+</div>
+
+<div id="configBanner">
+    <p>⚙️ Configure ton projet Supabase :</p>
+    <input id="cfgUrl" type="text" placeholder="Project URL (https://xxx.supabase.co)" />
+    <input id="cfgKey" type="text" placeholder="Anon/public key" />
+    <button class="btn" onclick="applyConfig()">Enregistrer</button>
+    <button class="btn" style="border-color:#555;color:#555" onclick="dismissConfig()">Ignorer (local)</button>
+</div>
+
+<div id="uploadProgress"><div id="uploadProgressBar"></div></div>
+<div class="gallery" id="gallery"></div>
+
+<div class="upload-overlay" id="uploadOverlay">
+    <div class="upload-area" id="uploadArea">
+        <div class="upload-icon">⬆️</div>
+        <div class="upload-text">Cliquez ou glissez vos fichiers ici</div>
+        <div class="upload-subtext">Images, vidéos — tous formats acceptés</div>
+    </div>
+</div>
+<input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none">
+
+<div class="fullscreen-modal" id="fullscreenModal">
+    <div id="slideCounter">1 / 1</div>
+    <div class="close-modal" id="closeModal">×</div>
+    <button class="modal-arrow" id="arrowPrev">‹</button>
+    <button class="modal-arrow" id="arrowNext">›</button>
+    <div class="modal-stage" id="modalStage">
+        <div class="slide-track" id="slideTrack"></div>
+    </div>
+    <div id="swipeDots"></div>
+    <div class="modal-info" id="modalInfo">
+        <div class="modal-info-name" id="infoName"></div>
+        <div class="modal-info-meta" id="infoMeta"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// ══════════════════════════════════════════════
+//  CONFIG  — clés lues depuis localStorage
+//  (remplies via la bannière ou hardcodées ici)
+// ══════════════════════════════════════════════
+// Accès sécurisé au localStorage (bloqué dans file:// et certains iframes)
+const store = (() => {
+    const mem = {};
+    try { localStorage.setItem('__test__', '1'); localStorage.removeItem('__test__'); return localStorage; }
+    catch(e) { return { getItem: k => mem[k] ?? null, setItem: (k,v) => { mem[k]=v; }, removeItem: k => { delete mem[k]; } }; }
+})();
+
+const SUPABASE_URL = store.getItem('sb_url') || 'https://gvnvnoisofvalibuqzun.supabase.co';
+const SUPABASE_KEY = store.getItem('sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2bnZub2lzb2Z2YWxpYnVxenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODQ0OTgsImV4cCI6MjA5MDY2MDQ5OH0.8Dg2kIy8Qwk09T2l9XeiBdvUdgv8cVNb2oXBJLMsf38';const BUCKET = 'gallery';
+const TABLE  = 'gallery_files';
+
+let sbClient  = null;
+let files       = [];
+let currentIndex = 0;
+let isAnimating  = false;
+let currentCard  = null;
+let dragStartX = 0, dragStartY = 0, dragDeltaX = 0;
+let isDragging = false, isHorizDrag = null;
+
+// ══════════════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════════════
+function init() {
+    setupUpload();
+    setupKeyboard();
+    setupModalControls();
+    setupSwipe();
+
+    try {
+        sbClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        setSyncStatus('loading');
+        loadFiles();
+    } catch(e) {
+        console.error('Supabase init error', e);
+        showConfigBanner();
+        loadLocalFallback();
+    }
+}
+
+// ══════════════════════════════════════════════
+//  BANNER CONFIG
+// ══════════════════════════════════════════════
+function showConfigBanner() {
+    document.getElementById('configBanner').classList.add('visible');
+    document.getElementById('gallery').classList.add('has-config');
+}
+function dismissConfig() {
+    document.getElementById('configBanner').classList.remove('visible');
+    document.getElementById('gallery').classList.remove('has-config');
+    setSyncStatus('Mode local', '#f59e0b');
+}
+function applyConfig() {
+    const url = document.getElementById('cfgUrl').value.trim();
+    const key = document.getElementById('cfgKey').value.trim();
+    if (!url || !key) { alert('Remplis les deux champs.'); return; }
+    store.setItem('sb_url', url);
+    store.setItem('sb_key', key);    location.reload();
+}
+
+// ══════════════════════════════════════════════
+//  SYNC STATUS
+// ══════════════════════════════════════════════
+function setSyncStatus(msg, color) {
+    const el = document.getElementById('syncStatus');
+    if (!el) return;
+    const palette = {
+        loading: ['⟳ Chargement…', '#888'],
+        saving:  ['⟳ Envoi…',      '#f59e0b'],
+        synced:  ['✓ Synchronisé',  '#22c55e'],
+        error:   ['✗ Erreur',       '#dc2626'],
+    };
+    const [text, clr] = palette[msg] ? palette[msg] : [msg, color || '#888'];
+    el.textContent   = text;
+    el.style.color   = clr;
+    el.style.borderColor = clr + '55';
+    el.style.background  = clr + '18';
+}
+
+// ══════════════════════════════════════════════
+//  LOAD from Supabase
+// ══════════════════════════════════════════════
+async function loadFiles() {
+    if (!sbClient) return;
+    setSyncStatus('loading');
+    try {
+        const { data, error } = await sbClient
+            .from(TABLE).select('*').order('created_at', { ascending: false });
+        if (error) throw error;
+        files = (data || []).map(r => ({
+            id: r.id, name: r.name, size: r.size,
+            type: r.mime_type, fileType: r.file_type,
+            url: r.url, date: r.created_at
+        }));
+        setSyncStatus('synced');
+        renderGallery();
+    } catch(e) {
+        console.error('Load error:', e.message || e);
+        setSyncStatus('error');
+        // Afficher l'erreur dans la galerie pour faciliter le debug
+        document.getElementById('gallery').innerHTML = `<div class="empty-state"><div class="empty-state-icon" style="color:#dc2626">⚠️</div><p style="color:#dc2626;font-size:15px">Erreur Supabase</p><p style="font-size:13px;color:#888;margin-top:8px">${e.message || e}</p><p style="font-size:12px;color:#555;margin-top:4px">Vérifie la console (F12) pour les détails</p></div>`;
+    }
+}
+
+function loadLocalFallback() {
+    files = [104,106,107,108,116,119].map((id, i) => ({
+        id: 'demo-' + i, name: `Photo ${i+1}.jpg`, size: 0,
+        type: 'image/jpeg', fileType: 'image',
+        url: `https://picsum.photos/id/${id}/800/600`,
+        date: new Date().toISOString()
+    }));
+    renderGallery();
+}
+
+// ══════════════════════════════════════════════
+//  ADD FILES
+// ══════════════════════════════════════════════
+async function addFiles(newFiles) {
+    document.getElementById('uploadOverlay').classList.remove('active');
+    const prog    = document.getElementById('uploadProgress');
+    const progBar = document.getElementById('uploadProgressBar');
+    prog.style.display = 'block';
+
+    for (let i = 0; i < newFiles.length; i++) {
+        const file     = newFiles[i];
+        const fileType = file.type.startsWith('image/') ? 'image'
+                       : file.type.startsWith('video/') ? 'video' : 'document';
+        progBar.style.width = Math.round((i / newFiles.length) * 90) + '%';
+        setSyncStatus('saving');
+
+        if (!sbClient) {
+            const url = await readAsDataURL(file);
+            files.unshift({ id: Date.now()+i, name: file.name, size: file.size, type: file.type, fileType, url, date: new Date().toISOString() });
+            renderGallery();
+            continue;
+        }
+
+        try {
+            // 1. Upload vers Storage
+            // En v2, upload() retourne { data: { path, fullPath }, error }
+            const storagePath = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g, '_')}`;
+            const { data: upData, error: upErr } = await sbClient.storage
+                .from(BUCKET).upload(storagePath, file, { upsert: false });
+            if (upErr) throw new Error('Storage upload: ' + upErr.message);
+
+            // 2. URL publique — getPublicUrl() est synchrone en v2, retourne { data: { publicUrl } }
+            const { data: urlData } = sbClient.storage.from(BUCKET).getPublicUrl(storagePath);
+            const url = urlData?.publicUrl;
+            if (!url) throw new Error('getPublicUrl a retourné une URL vide');
+
+            // 3. Insert en base
+            const { data: row, error: dbErr } = await sbClient.from(TABLE).insert({
+                name: file.name,
+                size: file.size,
+                mime_type: file.type,
+                file_type: fileType,
+                url: url,
+                storage_path: storagePath
+            }).select().single();
+            if (dbErr) throw new Error('DB insert: ' + dbErr.message);
+
+            files.unshift({ id: row.id, name: row.name, size: row.size, type: row.mime_type, fileType: row.file_type, url: row.url, date: row.created_at });
+            renderGallery();
+        } catch(e) {
+            console.error('Upload error:', e.message || e);
+            alert('Erreur upload : ' + (e.message || 'voir console'));
+            setSyncStatus('error');
+        }
+    }
+
+    progBar.style.width = '100%';
+    setTimeout(() => { prog.style.display = 'none'; progBar.style.width = '0%'; }, 600);
+    setSyncStatus('synced');
+}
+
+function readAsDataURL(file) {
+    return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
+}
+
+// ══════════════════════════════════════════════
+//  DELETE
+// ══════════════════════════════════════════════
+async function deleteFile(id, e) {
+    if (e) e.stopPropagation();
+    if (!confirm('Supprimer ce fichier ?')) return;
+    const file = files.find(f => String(f.id) === String(id));
+
+    if (sbClient && file && !String(id).startsWith('demo')) {
+        setSyncStatus('saving');
+        try {
+            // Supprimer d'abord la ligne DB (pour récupérer storage_path si besoin)
+            await sbClient.from(TABLE).delete().eq('id', id);
+            // Supprimer du storage — on reconstruit le chemin depuis l'URL publique
+            // Format : .../object/public/BUCKET/storagePath
+            const match = file.url && file.url.match(/\/object\/public\/[^/]+\/(.+)$/);
+            if (match && match[1]) {
+                await sbClient.storage.from(BUCKET).remove([decodeURIComponent(match[1])]);
+            }
+        } catch(e) { console.warn('Delete error:', e); }
+        setSyncStatus('synced');
+    }
+
+    files = files.filter(f => String(f.id) !== String(id));
+    renderGallery();
+    if (document.getElementById('fullscreenModal').classList.contains('active')) {
+        files.length === 0 ? closeModal() : openModal(Math.min(currentIndex, files.length - 1));
+    }
+}
+
+// ══════════════════════════════════════════════
+//  RENDER GALLERY
+// ══════════════════════════════════════════════
+function renderGallery() {
+    const gallery = document.getElementById('gallery
