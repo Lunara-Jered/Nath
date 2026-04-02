@@ -501,9 +501,9 @@ nav.scrolled { background: rgba(0,0,0,.95); }
 <section class="hero" id="hero">
   <div class="hero-slides" id="heroSlides"></div>
   <div class="hero-content">
-    <div class="hero-eyebrow">Range tes souvenirs ici!❤️</div>
+    <div class="hero-eyebrow">Range tes souvenirs pour ne jamais les oublier!❤️</div>
     <h1 class="hero-title">Joyeux<br><em>Anniversaire</em> 🎂</h1>
-    <p class="hero-subtitle">Une collection de moments précieux, capturés pour ne jamais oublier. J'espère que ce cadeau te plaira et te sera utile. Signé et créé par le plus intelligent des génies j'ai nommé Jérémie MABAYI😌</p>
+    <p class="hero-subtitle">Une collection de moments précieux, capturés pour ne jamais oublier.</p>
     <div class="hero-stats">
       <div class="hero-stat">
         <div class="hero-stat-num" id="heroCount">0</div>
@@ -572,6 +572,10 @@ nav.scrolled { background: rgba(0,0,0,.95); }
       <div class="modal-filename" id="infoName"></div>
       <div class="modal-filemeta" id="infoMeta"></div>
     </div>
+    <button id="modalDownloadBtn" onclick="downloadCurrentFile()" style="display:flex;align-items:center;gap:7px;background:var(--red);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;transition:all .25s;flex-shrink:0;">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      Télécharger
+    </button>
   </div>
 </div>
 
@@ -854,6 +858,7 @@ function renderGallery() {
         <div class="gallery-date">${fmt(f.date)}</div>
       </div>
       <div class="gallery-actions">
+        <div class="action-btn" onclick="downloadFile('${f.url}','${f.name}',event)" title="Télécharger">↓</div>
         <div class="action-btn del" onclick="deleteFile('${f.id}',event)" title="Supprimer">✕</div>
       </div>
     </div>`).join('');
@@ -1006,9 +1011,31 @@ function formatSize(b) {
 }
 
 // ════════════════════════════════════════════
-//  GLOBALS + START
+//  DOWNLOAD
 // ════════════════════════════════════════════
-window.openModal=openModal; window.deleteFile=deleteFile;
+async function downloadFile(url, name, e) {
+  if (e) e.stopPropagation();
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = name || 'fichier';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  } catch(err) {
+    // Fallback : ouvrir dans un nouvel onglet
+    window.open(url, '_blank');
+  }
+}
+
+function downloadCurrentFile() {
+  const f = filteredFiles[currentIndex];
+  if (f) downloadFile(f.url, f.name);
+}
+
+
+window.openModal=openModal; window.deleteFile=deleteFile; window.downloadFile=downloadFile;
 window.applyConfig=applyConfig; window.dismissConfig=dismissConfig;
 
 init();
