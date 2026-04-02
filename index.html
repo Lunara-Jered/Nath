@@ -6,259 +6,73 @@
     <title>Galerie de Nath</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #000;
-            overflow-x: hidden;
-        }
-
-        /* ── App Bar ── */
-        .appbar {
-            position: fixed; top: 0; left: 0; right: 0;
-            background: rgba(0,0,0,0.95);
-            backdrop-filter: blur(10px);
-            z-index: 100;
-            padding: 14px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(220,38,38,.3);
-            box-shadow: 0 2px 20px rgba(0,0,0,.5);
-        }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #000; overflow-x: hidden; }
+        .appbar { position: fixed; top: 0; left: 0; right: 0; background: rgba(0,0,0,0.95); backdrop-filter: blur(10px); z-index: 100; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(220,38,38,.3); box-shadow: 0 2px 20px rgba(0,0,0,.5); }
         .appbar-title { color: #dc2626; font-size: 1.4rem; font-weight: 700; letter-spacing: 1px; }
         .appbar-actions { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-
-        .btn {
-            background: transparent; border: 1px solid #dc2626; color: #dc2626;
-            padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
-            cursor: pointer; transition: all .3s; font-family: inherit;
-        }
+        .btn { background: transparent; border: 1px solid #dc2626; color: #dc2626; padding: 7px 16px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .3s; font-family: inherit; }
         .btn:hover { background: #dc2626; color: #000; transform: translateY(-2px); }
         .btn:disabled { opacity: .4; cursor: not-allowed; transform: none; }
-
-        .stats {
-            color: #fff; font-size: 13px;
-            background: rgba(220,38,38,.15); padding: 5px 12px;
-            border-radius: 20px; border: 1px solid rgba(220,38,38,.3);
-        }
-
-        #syncStatus {
-            font-size: 12px; padding: 5px 10px; border-radius: 20px;
-            border: 1px solid #88888844; color: #888;
-            background: #88888811; transition: all .4s;
-            white-space: nowrap;
-        }
-
-        /* ── Config Banner ── */
-        #configBanner {
-            position: fixed; top: 60px; left: 0; right: 0;
-            background: #1a0000; border-bottom: 1px solid #dc2626;
-            padding: 12px 20px; z-index: 99; display: none;
-            align-items: center; gap: 12px; flex-wrap: wrap;
-        }
+        .stats { color: #fff; font-size: 13px; background: rgba(220,38,38,.15); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(220,38,38,.3); }
+        #syncStatus { font-size: 12px; padding: 5px 10px; border-radius: 20px; border: 1px solid #88888844; color: #888; background: #88888811; transition: all .4s; white-space: nowrap; }
+        #configBanner { position: fixed; top: 60px; left: 0; right: 0; background: #1a0000; border-bottom: 1px solid #dc2626; padding: 12px 20px; z-index: 99; display: none; align-items: center; gap: 12px; flex-wrap: wrap; }
         #configBanner.visible { display: flex; }
         #configBanner p { color: #dc2626; font-size: 13px; flex: 1; min-width: 200px; }
-        #configBanner input {
-            background: #111; border: 1px solid #dc2626; color: #fff;
-            padding: 6px 10px; border-radius: 6px; font-size: 12px; width: 220px;
-            font-family: monospace;
-        }
+        #configBanner input { background: #111; border: 1px solid #dc2626; color: #fff; padding: 6px 10px; border-radius: 6px; font-size: 12px; width: 220px; font-family: monospace; }
         #configBanner input::placeholder { color: #555; }
-
-        /* ── Upload progress bar ── */
-        #uploadProgress {
-            position: fixed; top: 60px; left: 0; right: 0; height: 3px;
-            background: #111; z-index: 98; display: none;
-        }
-        #uploadProgressBar {
-            height: 100%; background: #dc2626;
-            transition: width .3s ease; width: 0%;
-        }
-
-        /* ── Gallery Grid ── */
-        .gallery {
-            margin-top: 70px; padding: 16px;
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 3px; background: #000;
-        }
+        #uploadProgress { position: fixed; top: 60px; left: 0; right: 0; height: 3px; background: #111; z-index: 98; display: none; }
+        #uploadProgressBar { height: 100%; background: #dc2626; transition: width .3s ease; width: 0%; }
+        .gallery { margin-top: 70px; padding: 16px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 3px; background: #000; }
         .gallery.has-config { margin-top: 120px; }
-
-        .gallery-item {
-            position: relative; aspect-ratio: 1; overflow: hidden;
-            cursor: pointer; background: #111; transition: transform .3s;
-        }
+        .gallery-item { position: relative; aspect-ratio: 1; overflow: hidden; cursor: pointer; background: #111; transition: transform .3s; }
         .gallery-item:hover { transform: scale(.98); }
-        .gallery-item img, .gallery-item video {
-            width: 100%; height: 100%; object-fit: cover;
-            transition: transform .5s;
-        }
+        .gallery-item img, .gallery-item video { width: 100%; height: 100%; object-fit: cover; transition: transform .5s; }
         .gallery-item:hover img { transform: scale(1.06); }
-
-        .gallery-overlay {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            background: linear-gradient(to top, rgba(0,0,0,.85), transparent);
-            padding: 28px 12px 10px; opacity: 0; transition: opacity .3s;
-        }
+        .gallery-overlay { position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(to top, rgba(0,0,0,.85), transparent); padding: 28px 12px 10px; opacity: 0; transition: opacity .3s; }
         .gallery-item:hover .gallery-overlay { opacity: 1; }
         .gallery-name { color: #fff; font-size: 12px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-        .delete-btn {
-            position: absolute; top: 10px; right: 10px;
-            background: rgba(0,0,0,.7); border: 1px solid #dc2626;
-            width: 30px; height: 30px; border-radius: 8px;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: all .2s; opacity: 0;
-            color: #dc2626; font-size: 16px; font-weight: bold;
-        }
+        .delete-btn { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,.7); border: 1px solid #dc2626; width: 30px; height: 30px; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all .2s; opacity: 0; color: #dc2626; font-size: 16px; font-weight: bold; }
         .gallery-item:hover .delete-btn { opacity: 1; }
         .delete-btn:hover { background: #dc2626; color: #000; transform: scale(1.1); }
-
-        /* Skeleton loading */
-        .skeleton {
-            aspect-ratio: 1; background: #111; overflow: hidden; position: relative;
-        }
-        .skeleton::after {
-            content: ''; position: absolute; inset: 0;
-            background: linear-gradient(90deg, transparent 0%, rgba(220,38,38,.07) 50%, transparent 100%);
-            animation: shimmer 1.5s infinite;
-        }
-        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-
-        /* ── Fullscreen Modal ── */
-        .fullscreen-modal {
-            position: fixed; inset: 0; background: #000;
-            z-index: 1000; display: none; overflow: hidden;
-        }
+        .fullscreen-modal { position: fixed; inset: 0; background: #000; z-index: 1000; display: none; overflow: hidden; }
         .fullscreen-modal.active { display: block; }
-
-        .modal-stage {
-            position: relative; width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            overflow: hidden;
-        }
-
-        /* Slide wrapper — houses current + neighbour cards */
-        .slide-track {
-            position: absolute; inset: 0;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .slide-card {
-            position: absolute;
-            width: 100%; height: 100%;
-            display: flex; align-items: center; justify-content: center;
-            will-change: transform, opacity;
-            transition: transform .55s cubic-bezier(.4,0,.2,1), opacity .55s cubic-bezier(.4,0,.2,1);
-        }
-        .slide-card.current  { transform: translateX(0) scale(1);   opacity: 1; }
+        .modal-stage { position: relative; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        .slide-track { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+        .slide-card { position: absolute; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; will-change: transform, opacity; transition: transform .55s cubic-bezier(.4,0,.2,1), opacity .55s cubic-bezier(.4,0,.2,1); }
+        .slide-card.current  { transform: translateX(0) scale(1); opacity: 1; }
         .slide-card.next-off { transform: translateX(100%) scale(.9); opacity: 0; }
         .slide-card.prev-off { transform: translateX(-100%) scale(.9); opacity: 0; }
-        /* Exit animations */
         .slide-card.exit-left  { transform: translateX(-110%) scale(.85) rotateY(15deg); opacity: 0; }
         .slide-card.exit-right { transform: translateX(110%) scale(.85) rotateY(-15deg); opacity: 0; }
-
-        .modal-media {
-            max-width: 100%; max-height: 100%;
-            object-fit: contain;
-            box-shadow: 0 0 60px rgba(220,38,38,.25);
-            user-select: none; pointer-events: none;
-            border-radius: 4px;
-        }
-
-        /* Drag-follow style */
+        .modal-media { max-width: 100%; max-height: 100%; object-fit: contain; box-shadow: 0 0 60px rgba(220,38,38,.25); user-select: none; pointer-events: none; border-radius: 4px; }
         .slide-card.dragging { transition: none !important; }
-
-        /* Arrow buttons */
-        .modal-arrow {
-            position: fixed; top: 50%; transform: translateY(-50%);
-            background: rgba(0,0,0,.6); backdrop-filter: blur(8px);
-            border: 1px solid rgba(220,38,38,.4); color: #dc2626;
-            width: 44px; height: 44px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 22px; z-index: 1002;
-            transition: all .25s; user-select: none;
-        }
+        .modal-arrow { position: fixed; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,.6); backdrop-filter: blur(8px); border: 1px solid rgba(220,38,38,.4); color: #dc2626; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 22px; z-index: 1002; transition: all .25s; user-select: none; }
         .modal-arrow:hover { background: #dc2626; color: #000; border-color: #dc2626; }
         .modal-arrow.hidden { opacity: 0; pointer-events: none; }
         #arrowPrev { left: 14px; }
         #arrowNext { right: 14px; }
-
-        /* Counter */
-        #slideCounter {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
-            background: rgba(0,0,0,.6); backdrop-filter: blur(8px);
-            color: #dc2626; font-size: 13px; font-weight: 600;
-            padding: 5px 14px; border-radius: 20px;
-            border: 1px solid rgba(220,38,38,.3);
-            z-index: 1002;
-        }
-
-        .close-modal {
-            position: fixed; top: 16px; right: 16px;
-            background: rgba(0,0,0,.7); border: 1px solid #dc2626;
-            color: #dc2626; width: 42px; height: 42px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 26px; z-index: 1002;
-            backdrop-filter: blur(10px); transition: all .3s;
-        }
+        #slideCounter { position: fixed; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,.6); backdrop-filter: blur(8px); color: #dc2626; font-size: 13px; font-weight: 600; padding: 5px 14px; border-radius: 20px; border: 1px solid rgba(220,38,38,.3); z-index: 1002; }
+        .close-modal { position: fixed; top: 16px; right: 16px; background: rgba(0,0,0,.7); border: 1px solid #dc2626; color: #dc2626; width: 42px; height: 42px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 26px; z-index: 1002; backdrop-filter: blur(10px); transition: all .3s; }
         .close-modal:hover { background: #dc2626; color: #000; transform: rotate(90deg); }
-
-        .modal-info {
-            position: fixed; bottom: 18px; left: 18px; right: 18px;
-            background: rgba(0,0,0,.8); backdrop-filter: blur(10px);
-            padding: 10px 18px; border-radius: 12px;
-            border-left: 3px solid #dc2626; z-index: 1002;
-            color: #fff; font-size: 14px;
-            transform: translateY(0); transition: opacity .3s;
-        }
+        .modal-info { position: fixed; bottom: 18px; left: 18px; right: 18px; background: rgba(0,0,0,.8); backdrop-filter: blur(10px); padding: 10px 18px; border-radius: 12px; border-left: 3px solid #dc2626; z-index: 1002; color: #fff; font-size: 14px; }
         .modal-info-name { font-weight: 600; margin-bottom: 2px; }
         .modal-info-meta { font-size: 12px; color: #dc2626; }
-
-        /* Swipe hint dots */
-        #swipeDots {
-            position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%);
-            display: flex; gap: 6px; z-index: 1002;
-        }
-        .swipe-dot {
-            width: 6px; height: 6px; border-radius: 50%;
-            background: rgba(220,38,38,.3); transition: all .3s;
-        }
+        #swipeDots { position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 1002; }
+        .swipe-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(220,38,38,.3); transition: all .3s; }
         .swipe-dot.active { background: #dc2626; transform: scale(1.4); }
-
-        /* ── Upload Overlay ── */
-        .upload-overlay {
-            position: fixed; inset: 0;
-            background: rgba(0,0,0,.95); z-index: 1001;
-            display: none; align-items: center; justify-content: center;
-            backdrop-filter: blur(20px);
-        }
+        .upload-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.95); z-index: 2000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
         .upload-overlay.active { display: flex; }
-
-        .upload-area {
-            background: #111; border: 2px dashed #dc2626;
-            border-radius: 16px; padding: 50px 36px;
-            text-align: center; max-width: 480px; width: 90%;
-            cursor: pointer; transition: all .3s;
-        }
-        .upload-area:hover, .upload-area.drag-over {
-            border-color: #f87171; background: #1a0000; transform: scale(1.02);
-        }
-        .upload-icon { font-size: 48px; margin-bottom: 16px; }
+        .upload-area { background: #111; border: 2px dashed #dc2626; border-radius: 16px; padding: 50px 36px; text-align: center; max-width: 480px; width: 90%; cursor: pointer; transition: all .3s; }
+        .upload-area:hover, .upload-area.drag-over { border-color: #f87171; background: #1a0000; transform: scale(1.02); }
+        .upload-icon { font-size: 48px; margin-bottom: 16px; color: #dc2626; }
         .upload-text { color: #fff; font-size: 16px; margin-bottom: 8px; }
         .upload-subtext { color: #555; font-size: 12px; }
-        .upload-area input { display: none; }
-
-        /* ── Empty State ── */
         .empty-state { grid-column: 1/-1; text-align: center; padding: 80px 20px; }
         .empty-state-icon { font-size: 64px; margin-bottom: 20px; }
         .empty-state p { color: #888; font-size: 16px; margin-top: 6px; }
-
-        /* ── Scrollbar ── */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: #000; }
         ::-webkit-scrollbar-thumb { background: #dc2626; border-radius: 3px; }
-
-        /* ── Responsive ── */
         @media (max-width: 640px) {
             .appbar { padding: 10px 14px; }
             .appbar-title { font-size: 1.1rem; }
@@ -270,7 +84,6 @@
 </head>
 <body>
 
-<!-- ── App Bar ── -->
 <div class="appbar">
     <div class="appbar-title">JOYEUX ANNIVERSAIRE</div>
     <div class="appbar-actions">
@@ -280,42 +93,38 @@
     </div>
 </div>
 
-<!-- ── Config Banner (shown when keys missing) ── -->
 <div id="configBanner">
-    <p> Configure ton projet Supabase pour activer le stockage partagé :</p>
-    <input id="cfgUrl"   type="text" placeholder="Project URL  (https://gvnvnoisofvalibuqzun.supabase.co)" />
-    <input id="cfgKey"   type="text" placeholder="Anon/public key" />
+    <p>⚙️ Configure ton projet Supabase :</p>
+    <input id="cfgUrl" type="text" placeholder="Project URL (https://xxx.supabase.co)" />
+    <input id="cfgKey" type="text" placeholder="Anon/public key" />
     <button class="btn" onclick="applyConfig()">Enregistrer</button>
     <button class="btn" style="border-color:#555;color:#555" onclick="dismissConfig()">Ignorer (local)</button>
 </div>
 
-<!-- ── Upload progress ── -->
 <div id="uploadProgress"><div id="uploadProgressBar"></div></div>
-
-<!-- ── Gallery ── -->
 <div class="gallery" id="gallery"></div>
 
-<!-- ── Upload Overlay ── -->
+<!-- Upload Overlay -->
 <div class="upload-overlay" id="uploadOverlay">
     <div class="upload-area" id="uploadArea">
-        <div class="upload-icon"></div>
-        <div class="upload-text">Cliquez ou glissez vos fichiers ici</div>
-        <div class="upload-subtext">Images, vidéos — tous formats acceptés</div>
-        <input type="file" id="fileInput" multiple accept="image/*,video/*">
+        <div class="upload-icon">⬆️</div>
+        <div class="upload-text">Cliquez pour sélectionner des fichiers</div>
+        <div class="upload-subtext">Glissez-déposez ou cliquez pour importer</div>
+        <div class="upload-subtext" style="margin-top: 12px; color: #dc2626;">Images et vidéos uniquement</div>
     </div>
 </div>
 
-<!-- ── Fullscreen Modal ── -->
+<!-- Hidden file input -->
+<input type="file" id="fileInput" multiple accept="image/*,video/*" style="display:none">
+
 <div class="fullscreen-modal" id="fullscreenModal">
     <div id="slideCounter">1 / 1</div>
     <div class="close-modal" id="closeModal">×</div>
     <button class="modal-arrow" id="arrowPrev">‹</button>
     <button class="modal-arrow" id="arrowNext">›</button>
-
     <div class="modal-stage" id="modalStage">
         <div class="slide-track" id="slideTrack"></div>
     </div>
-
     <div id="swipeDots"></div>
     <div class="modal-info" id="modalInfo">
         <div class="modal-info-name" id="infoName"></div>
@@ -323,158 +132,137 @@
     </div>
 </div>
 
-<!-- ── Supabase SDK ── -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
 <script>
-// ════════════════════════════════════════════════════════════════
-//  CONFIG — remplace par tes vraies valeurs Supabase
-// ════════════════════════════════════════════════════════════════
-const CONFIG = {
-    supabaseUrl:  localStorage.getItem('https://gvnvnoisofvalibuqzun.supabase.co')  || '',
-    supabaseKey:  localStorage.getItem('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2bnZub2lzb2Z2YWxpYnVxenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODQ0OTgsImV4cCI6MjA5MDY2MDQ5OH0.8Dg2kIy8Qwk09T2l9XeiBdvUdgv8cVNb2oXBJLMsf38')  || '',
-    bucket:       'gallery',   // nom du bucket Storage Supabase
-    table:        'gallery_files' // nom de la table DB
-};
+// ══════════════════════════════════════════════
+//  CONFIG  — clés lues depuis localStorage
+// ══════════════════════════════════════════════
+const SUPABASE_URL = localStorage.getItem('sb_url') || 'https://gvnvnoisofvalibuqzun.supabase.co';
+const SUPABASE_KEY = localStorage.getItem('sb_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imd2bnZub2lzb2Z2YWxpYnVxenVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUwODQ0OTgsImV4cCI6MjA5MDY2MDQ5OH0.8Dg2kIy8Qwk09T2l9XeiBdvUdgv8cVNb2oXBJLMsf38';
+const BUCKET = 'gallery';
+const TABLE  = 'gallery_files';
 
-let supabase = null;
-let files    = [];           // { id, name, size, type, fileType, url, date }
+let supabase    = null;
+let files       = [];
 let currentIndex = 0;
 let isAnimating  = false;
+let currentCard  = null;
+let dragStartX = 0, dragStartY = 0, dragDeltaX = 0;
+let isDragging = false, isHorizDrag = null;
 
-// ── touch / drag state ──
-let dragStartX = 0;
-let dragDeltaX = 0;
-let isDragging = false;
-let currentCard = null;
-
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  INIT
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 function init() {
-    if (CONFIG.supabaseUrl && CONFIG.supabaseKey) {
-        try {
-            supabase = window.supabase.createClient(CONFIG.supabaseUrl, CONFIG.supabaseKey);
-            setSyncStatus('loading');
-            loadFiles();
-        } catch(e) {
-            showConfigBanner();
-        }
-    } else {
-        showConfigBanner();
-        loadLocalFallback();
-    }
     setupUpload();
     setupKeyboard();
     setupModalControls();
     setupSwipe();
+
+    try {
+        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        setSyncStatus('loading');
+        loadFiles();
+    } catch(e) {
+        console.error('Supabase init error', e);
+        showConfigBanner();
+        loadLocalFallback();
+    }
 }
 
-// ════════════════════════════════════════════════════════════════
-//  CONFIG BANNER
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  BANNER CONFIG
+// ══════════════════════════════════════════════
 function showConfigBanner() {
     document.getElementById('configBanner').classList.add('visible');
-    document.querySelector('.gallery').classList.add('has-config');
+    document.getElementById('gallery').classList.add('has-config');
 }
 function dismissConfig() {
     document.getElementById('configBanner').classList.remove('visible');
-    document.querySelector('.gallery').classList.remove('has-config');
+    document.getElementById('gallery').classList.remove('has-config');
     setSyncStatus('Mode local', '#f59e0b');
 }
 function applyConfig() {
     const url = document.getElementById('cfgUrl').value.trim();
     const key = document.getElementById('cfgKey').value.trim();
-    if (!url || !key) return alert('Remplis les deux champs.');
+    if (!url || !key) { alert('Remplis les deux champs.'); return; }
     localStorage.setItem('sb_url', url);
     localStorage.setItem('sb_key', key);
-    CONFIG.supabaseUrl = url;
-    CONFIG.supabaseKey = key;
     location.reload();
 }
 
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  SYNC STATUS
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 function setSyncStatus(msg, color) {
     const el = document.getElementById('syncStatus');
     if (!el) return;
     const palette = {
-        loading:  ['⟳ Chargement…', '#888'],
-        saving:   ['⟳ Envoi…',       '#f59e0b'],
-        synced:   ['✓ Synchronisé',   '#22c55e'],
-        error:    ['✗ Erreur',        '#dc2626'],
+        loading: ['⟳ Chargement…', '#888'],
+        saving:  ['⟳ Envoi…',      '#f59e0b'],
+        synced:  ['✓ Synchronisé',  '#22c55e'],
+        error:   ['✗ Erreur',       '#dc2626'],
     };
-    const [text, clr] = typeof msg === 'string' && palette[msg] ? palette[msg] : [msg || '?', color || '#888'];
-    el.textContent = text;
-    el.style.color = clr;
+    const [text, clr] = palette[msg] ? palette[msg] : [msg, color || '#888'];
+    el.textContent   = text;
+    el.style.color   = clr;
     el.style.borderColor = clr + '55';
     el.style.background  = clr + '18';
 }
 
-// ════════════════════════════════════════════════════════════════
-//  LOAD
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  LOAD from Supabase
+// ══════════════════════════════════════════════
 async function loadFiles() {
     if (!supabase) return;
     setSyncStatus('loading');
     try {
         const { data, error } = await supabase
-            .from(CONFIG.table)
-            .select('*')
-            .order('created_at', { ascending: false });
+            .from(TABLE).select('*').order('created_at', { ascending: false });
         if (error) throw error;
         files = (data || []).map(r => ({
-            id:       r.id,
-            name:     r.name,
-            size:     r.size,
-            type:     r.mime_type,
-            fileType: r.file_type,
-            url:      r.url,
-            date:     r.created_at
+            id: r.id, name: r.name, size: r.size,
+            type: r.mime_type, fileType: r.file_type,
+            url: r.url, date: r.created_at
         }));
         setSyncStatus('synced');
         renderGallery();
     } catch(e) {
-        console.error(e);
+        console.error('Load error', e);
         setSyncStatus('error');
         loadLocalFallback();
     }
 }
 
 function loadLocalFallback() {
-    // demo images si pas de backend
-    const demos = [104,106,107,108,116,119].map((id, i) => ({
-        id: 'demo-' + i,
-        name: `Photo ${i+1}.jpg`,
-        size: 0,
-        type: 'image/jpeg',
-        fileType: 'image',
+    files = [104,106,107,108,116,119].map((id, i) => ({
+        id: 'demo-' + i, name: `Photo ${i+1}.jpg`, size: 0,
+        type: 'image/jpeg', fileType: 'image',
         url: `https://picsum.photos/id/${id}/800/600`,
         date: new Date().toISOString()
     }));
-    files = demos;
     renderGallery();
 }
 
-// ════════════════════════════════════════════════════════════════
-//  ADD FILES  (upload → Supabase Storage + insert row)
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  ADD FILES
+// ══════════════════════════════════════════════
 async function addFiles(newFiles) {
+    // Fermer l'overlay
     document.getElementById('uploadOverlay').classList.remove('active');
-    const prog     = document.getElementById('uploadProgress');
-    const progBar  = document.getElementById('uploadProgressBar');
+    
+    const prog    = document.getElementById('uploadProgress');
+    const progBar = document.getElementById('uploadProgressBar');
     prog.style.display = 'block';
 
     for (let i = 0; i < newFiles.length; i++) {
         const file     = newFiles[i];
-        const fileType = file.type.startsWith('image/') ? 'image' : file.type.startsWith('video/') ? 'video' : 'document';
-        const pct = Math.round((i / newFiles.length) * 100);
-        progBar.style.width = pct + '%';
+        const fileType = file.type.startsWith('image/') ? 'image'
+                       : file.type.startsWith('video/') ? 'video' : 'document';
+        progBar.style.width = Math.round((i / newFiles.length) * 90) + '%';
         setSyncStatus('saving');
 
         if (!supabase) {
-            // fallback local preview
             const url = await readAsDataURL(file);
             files.unshift({ id: Date.now()+i, name: file.name, size: file.size, type: file.type, fileType, url, date: new Date().toISOString() });
             renderGallery();
@@ -483,14 +271,15 @@ async function addFiles(newFiles) {
 
         try {
             const path = `${Date.now()}_${file.name.replace(/\s/g,'_')}`;
-            const { error: upErr } = await supabase.storage.from(CONFIG.bucket).upload(path, file, { upsert: false });
+            const { error: upErr } = await supabase.storage.from(BUCKET).upload(path, file, { upsert: false });
             if (upErr) throw upErr;
 
-            const { data: urlData } = supabase.storage.from(CONFIG.bucket).getPublicUrl(path);
+            const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
             const url = urlData.publicUrl;
 
-            const { data: row, error: dbErr } = await supabase.from(CONFIG.table).insert({
-                name: file.name, size: file.size, mime_type: file.type, file_type: fileType, url, storage_path: path
+            const { data: row, error: dbErr } = await supabase.from(TABLE).insert({
+                name: file.name, size: file.size, mime_type: file.type,
+                file_type: fileType, url, storage_path: path
             }).select().single();
             if (dbErr) throw dbErr;
 
@@ -508,77 +297,59 @@ async function addFiles(newFiles) {
 }
 
 function readAsDataURL(file) {
-    return new Promise((res, rej) => {
-        const r = new FileReader();
-        r.onload = () => res(r.result);
-        r.onerror = rej;
-        r.readAsDataURL(file);
-    });
+    return new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = rej; r.readAsDataURL(file); });
 }
 
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  DELETE
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 async function deleteFile(id, e) {
     if (e) e.stopPropagation();
     if (!confirm('Supprimer ce fichier ?')) return;
-    const file = files.find(f => f.id == id);
-    if (!file) return;
+    const file = files.find(f => String(f.id) === String(id));
 
-    if (supabase && !String(id).startsWith('demo')) {
+    if (supabase && file && !String(id).startsWith('demo')) {
         setSyncStatus('saving');
-        // remove from storage if possible
         try {
-            const path = new URL(file.url).pathname.split(`/${CONFIG.bucket}/`)[1];
-            if (path) await supabase.storage.from(CONFIG.bucket).remove([path]);
-            await supabase.from(CONFIG.table).delete().eq('id', id);
+            const path = new URL(file.url).pathname.split(`/${BUCKET}/`)[1];
+            if (path) await supabase.storage.from(BUCKET).remove([path]);
+            await supabase.from(TABLE).delete().eq('id', id);
         } catch(e) { console.warn(e); }
         setSyncStatus('synced');
     }
 
-    files = files.filter(f => f.id != id);
+    files = files.filter(f => String(f.id) !== String(id));
     renderGallery();
     if (document.getElementById('fullscreenModal').classList.contains('active')) {
-        if (files.length === 0) closeModal();
-        else openModal(Math.min(currentIndex, files.length - 1));
+        files.length === 0 ? closeModal() : openModal(Math.min(currentIndex, files.length - 1));
     }
 }
 
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  RENDER GALLERY
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 function renderGallery() {
     const gallery = document.getElementById('gallery');
-    const stats   = document.getElementById('stats');
-    stats.textContent = `${files.length} fichier${files.length !== 1 ? 's' : ''}`;
+    document.getElementById('stats').textContent = `${files.length} fichier${files.length !== 1 ? 's' : ''}`;
 
     if (files.length === 0) {
-        gallery.innerHTML = `
-            <div class="empty-state">
-                <div class="empty-state-icon" style="color:#dc2626">📷</div>
-                <p style="font-size:18px;color:#ccc">La galerie est vide</p>
-                <p>Clique sur <strong style="color:#dc2626">IMPORTER</strong> pour ajouter des photos</p>
-            </div>`;
+        gallery.innerHTML = `<div class="empty-state"><div class="empty-state-icon" style="color:#dc2626">📷</div><p style="font-size:18px;color:#ccc">La galerie est vide</p><p>Clique sur <strong style="color:#dc2626">IMPORTER</strong> pour ajouter des photos</p></div>`;
         return;
     }
 
     gallery.innerHTML = files.map((f, idx) => `
         <div class="gallery-item" onclick="openModal(${idx})">
-            ${f.fileType === 'image'
-                ? `<img src="${f.url}" alt="${f.name}" loading="lazy">`
-                : f.fileType === 'video'
-                ? `<video src="${f.url}" muted playsinline></video>`
-                : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#dc2626;font-size:52px;">📄</div>`}
-            <div class="gallery-overlay">
-                <div class="gallery-name">${f.name.length > 38 ? f.name.slice(0,35)+'…' : f.name}</div>
-            </div>
+            ${f.fileType === 'image' ? `<img src="${f.url}" alt="${f.name}" loading="lazy">`
+            : f.fileType === 'video' ? `<video src="${f.url}" muted playsinline></video>`
+            : `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:#dc2626;font-size:52px;">📄</div>`}
+            <div class="gallery-overlay"><div class="gallery-name">${f.name.length > 38 ? f.name.slice(0,35)+'…' : f.name}</div></div>
             <div class="delete-btn" onclick="deleteFile('${f.id}', event)">✕</div>
         </div>`).join('');
 }
 
-// ════════════════════════════════════════════════════════════════
-//  MODAL — open / close / render
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  MODAL
+// ══════════════════════════════════════════════
 function openModal(idx) {
     currentIndex = idx;
     document.getElementById('fullscreenModal').classList.add('active');
@@ -594,45 +365,28 @@ function closeModal() {
 }
 
 function mediaEl(file) {
-    if (file.fileType === 'image')
-        return `<img class="modal-media" src="${file.url}" alt="${file.name}">`;
-    if (file.fileType === 'video')
-        return `<video class="modal-media" controls autoplay playsinline><source src="${file.url}" type="${file.type}"></video>`;
-    return `<div style="background:#111;padding:40px;border-radius:12px;text-align:center;border:1px solid #dc2626">
-        <div style="font-size:64px;color:#dc2626;margin-bottom:16px">📄</div>
-        <h3 style="color:#fff">${file.name}</h3>
-        <p style="color:#888;margin-top:8px">${formatSize(file.size)}</p>
-        <a href="${file.url}" target="_blank" download="${file.name}"
-           style="display:inline-block;margin-top:16px;padding:10px 20px;background:#dc2626;color:#000;text-decoration:none;border-radius:8px;font-weight:700">
-           Télécharger</a>
-    </div>`;
+    if (file.fileType === 'image') return `<img class="modal-media" src="${file.url}" alt="${file.name}">`;
+    if (file.fileType === 'video') return `<video class="modal-media" controls autoplay playsinline><source src="${file.url}" type="${file.type}"></video>`;
+    return `<div style="background:#111;padding:40px;border-radius:12px;text-align:center;border:1px solid #dc2626"><div style="font-size:64px;color:#dc2626;margin-bottom:16px">📄</div><h3 style="color:#fff">${file.name}</h3><a href="${file.url}" target="_blank" style="display:inline-block;margin-top:16px;padding:10px 20px;background:#dc2626;color:#000;text-decoration:none;border-radius:8px;font-weight:700">Télécharger</a></div>`;
 }
 
 function renderSlides() {
     const track = document.getElementById('slideTrack');
     track.innerHTML = '';
-    const file = files[currentIndex];
-
     const card = document.createElement('div');
     card.className = 'slide-card current';
-    card.innerHTML = mediaEl(file);
+    card.innerHTML = mediaEl(files[currentIndex]);
     track.appendChild(card);
     currentCard = card;
-
-    document.getElementById('infoName').textContent = file.name;
-    document.getElementById('infoMeta').textContent =
-        `${file.fileType.toUpperCase()} • ${formatSize(file.size)}`;
+    document.getElementById('infoName').textContent = files[currentIndex].name;
+    document.getElementById('infoMeta').textContent = `${files[currentIndex].fileType.toUpperCase()} • ${formatSize(files[currentIndex].size)}`;
 }
 
-function updateCounter() {
-    document.getElementById('slideCounter').textContent = `${currentIndex + 1} / ${files.length}`;
-}
-
+function updateCounter() { document.getElementById('slideCounter').textContent = `${currentIndex + 1} / ${files.length}`; }
 function updateArrows() {
     document.getElementById('arrowPrev').classList.toggle('hidden', currentIndex === 0);
     document.getElementById('arrowNext').classList.toggle('hidden', currentIndex === files.length - 1);
 }
-
 function renderDots() {
     const el = document.getElementById('swipeDots');
     if (files.length <= 1) { el.innerHTML = ''; return; }
@@ -644,53 +398,33 @@ function renderDots() {
     }).join('');
 }
 
-// ════════════════════════════════════════════════════════════════
-//  NAVIGATION (slide animation)
-// ════════════════════════════════════════════════════════════════
 function navigateTo(newIdx, dir) {
     if (isAnimating || newIdx < 0 || newIdx >= files.length) return;
     isAnimating = true;
-
     const track   = document.getElementById('slideTrack');
     const oldCard = currentCard;
-
-    // Create incoming card off-screen
     const newCard = document.createElement('div');
     newCard.className = 'slide-card ' + (dir === 'next' ? 'next-off' : 'prev-off');
     newCard.innerHTML = mediaEl(files[newIdx]);
     track.appendChild(newCard);
-
-    // Force reflow
     newCard.getBoundingClientRect();
-
-    // Animate
     requestAnimationFrame(() => {
         oldCard.className = 'slide-card ' + (dir === 'next' ? 'exit-left' : 'exit-right');
         newCard.className  = 'slide-card current';
     });
-
     currentIndex = newIdx;
     currentCard  = newCard;
-
     document.getElementById('infoName').textContent = files[newIdx].name;
-    document.getElementById('infoMeta').textContent =
-        `${files[newIdx].fileType.toUpperCase()} • ${formatSize(files[newIdx].size)}`;
-    updateCounter();
-    updateArrows();
-    renderDots();
-
-    setTimeout(() => {
-        oldCard.remove();
-        isAnimating = false;
-    }, 560);
+    document.getElementById('infoMeta').textContent = `${files[newIdx].fileType.toUpperCase()} • ${formatSize(files[newIdx].size)}`;
+    updateCounter(); updateArrows(); renderDots();
+    setTimeout(() => { oldCard.remove(); isAnimating = false; }, 560);
 }
 
-// ════════════════════════════════════════════════════════════════
-//  SWIPE — smooth drag-follow
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  SWIPE
+// ══════════════════════════════════════════════
 function setupSwipe() {
     const modal = document.getElementById('fullscreenModal');
-
     modal.addEventListener('touchstart', onDragStart, { passive: true });
     modal.addEventListener('touchmove',  onDragMove,  { passive: false });
     modal.addEventListener('touchend',   onDragEnd,   { passive: true });
@@ -700,75 +434,45 @@ function setupSwipe() {
     modal.addEventListener('mouseleave', onDragEnd);
 }
 
-function getClientX(e) {
-    return e.touches ? e.touches[0].clientX : e.clientX;
-}
-function getClientY(e) {
-    return e.touches ? e.touches[0].clientY : e.clientY;
-}
-
-let dragStartY = 0;
-let isHorizDrag = null;
+function getClientX(e) { return e.touches ? e.touches[0].clientX : e.clientX; }
+function getClientY(e) { return e.touches ? e.touches[0].clientY : e.clientY; }
 
 function onDragStart(e) {
-    if (isAnimating) return;
-    if (e.target.closest('.close-modal, .modal-arrow, video, a')) return;
-    dragStartX = getClientX(e);
-    dragStartY = getClientY(e);
-    dragDeltaX = 0;
-    isDragging = true;
-    isHorizDrag = null;
+    if (isAnimating || e.target.closest('.close-modal,.modal-arrow,video,a')) return;
+    dragStartX = getClientX(e); dragStartY = getClientY(e);
+    dragDeltaX = 0; isDragging = true; isHorizDrag = null;
     if (currentCard) currentCard.classList.add('dragging');
 }
-
 function onDragMove(e) {
     if (!isDragging || !currentCard) return;
     const dx = getClientX(e) - dragStartX;
     const dy = getClientY(e) - dragStartY;
-
-    if (isHorizDrag === null) {
-        if (Math.abs(dx) > 8 || Math.abs(dy) > 8)
-            isHorizDrag = Math.abs(dx) > Math.abs(dy);
-    }
+    if (isHorizDrag === null && (Math.abs(dx) > 8 || Math.abs(dy) > 8))
+        isHorizDrag = Math.abs(dx) > Math.abs(dy);
     if (!isHorizDrag) return;
     if (e.cancelable) e.preventDefault();
-
     dragDeltaX = dx;
-    const r = dx * 0.04;
-    const s = 1 - Math.abs(dx) / 1200;
-    const o = 1 - Math.abs(dx) / 600;
-    currentCard.style.transform = `translateX(${dx}px) rotateY(${r}deg) scale(${s})`;
-    currentCard.style.opacity   = Math.max(0.3, o);
+    currentCard.style.transform = `translateX(${dx}px) rotateY(${dx * 0.04}deg) scale(${1 - Math.abs(dx)/1200})`;
+    currentCard.style.opacity   = String(Math.max(0.3, 1 - Math.abs(dx)/600));
 }
-
 function onDragEnd() {
     if (!isDragging || !currentCard) return;
     isDragging = false;
     currentCard.classList.remove('dragging');
-
-    const threshold = window.innerWidth * 0.28;
-
-    if (Math.abs(dragDeltaX) > threshold) {
+    if (Math.abs(dragDeltaX) > window.innerWidth * 0.28) {
         navigateTo(currentIndex + (dragDeltaX < 0 ? 1 : -1), dragDeltaX < 0 ? 'next' : 'prev');
     } else {
-        // Snap back
         currentCard.style.transition = 'transform .4s cubic-bezier(.4,0,.2,1), opacity .4s';
         currentCard.style.transform  = 'translateX(0) rotateY(0deg) scale(1)';
         currentCard.style.opacity    = '1';
-        setTimeout(() => {
-            if (currentCard) {
-                currentCard.style.transition = '';
-                currentCard.style.transform  = '';
-                currentCard.style.opacity    = '';
-            }
-        }, 420);
+        setTimeout(() => { if (currentCard) { currentCard.style.transition = currentCard.style.transform = currentCard.style.opacity = ''; } }, 420);
     }
     dragDeltaX = 0;
 }
 
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 //  KEYBOARD
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
 function setupKeyboard() {
     document.addEventListener('keydown', e => {
         if (!document.getElementById('fullscreenModal').classList.contains('active')) return;
@@ -778,108 +482,81 @@ function setupKeyboard() {
     });
 }
 
-// ════════════════════════════════════════════════════════════════
-//  UPLOAD SETUP
-// ════════════════════════════════════════════════════════════════
+// ══════════════════════════════════════════════
+//  UPLOAD - CORRIGÉ
+// ══════════════════════════════════════════════
 function setupUpload() {
-    const uploadBtn     = document.getElementById('uploadBtn');
+    const uploadBtn = document.getElementById('uploadBtn');
     const uploadOverlay = document.getElementById('uploadOverlay');
-    const uploadArea    = document.getElementById('uploadArea');
-    const fileInput     = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
 
-    uploadBtn.onclick = () => uploadOverlay.classList.add('active');
-    uploadOverlay.onclick = e => { if (e.target === uploadOverlay) uploadOverlay.classList.remove('active'); };
-    uploadArea.onclick = e => {
-        if (e.target === uploadArea || e.target.classList.contains('upload-icon') || e.target.classList.contains('upload-text'))
-            fileInput.click();
-    };
-    fileInput.onchange = e => { if (e.target.files.length) addFiles([...e.target.files]); fileInput.value=''; };
+    // Ouvrir l'overlay au clic sur le bouton
+    uploadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadOverlay.classList.add('active');
+    });
 
-    uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('drag-over'); });
-    uploadArea.addEventListener('dragleave', () => uploadArea.classList.remove('drag-over'));
-    uploadArea.addEventListener('drop', e => {
-        e.preventDefault(); uploadArea.classList.remove('drag-over');
-        addFiles([...e.dataTransfer.files]);
+    // Fermer l'overlay si on clique sur le fond noir
+    uploadOverlay.addEventListener('click', (e) => {
+        if (e.target === uploadOverlay) {
+            uploadOverlay.classList.remove('active');
+        }
+    });
+
+    // Ouvrir le sélecteur de fichiers quand on clique sur la zone d'upload
+    uploadArea.addEventListener('click', (e) => {
+        e.stopPropagation();
+        fileInput.click();
+    });
+
+    // Gérer la sélection des fichiers
+    fileInput.addEventListener('change', (e) => {
+        if (e.target.files && e.target.files.length > 0) {
+            addFiles(Array.from(e.target.files));
+            fileInput.value = ''; // Reset pour permettre de sélectionner les mêmes fichiers
+        }
+    });
+
+    // Drag & drop
+    uploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        uploadArea.classList.add('drag-over');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+        uploadArea.classList.remove('drag-over');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove('drag-over');
+        const droppedFiles = Array.from(e.dataTransfer.files);
+        if (droppedFiles.length > 0) {
+            addFiles(droppedFiles);
+        }
     });
 }
 
-// ════════════════════════════════════════════════════════════════
-//  MODAL CONTROLS
-// ════════════════════════════════════════════════════════════════
 function setupModalControls() {
-    document.getElementById('closeModal').onclick = closeModal;
-    document.getElementById('arrowPrev').onclick  = () => navigateTo(currentIndex - 1, 'prev');
-    document.getElementById('arrowNext').onclick  = () => navigateTo(currentIndex + 1, 'next');
+    document.getElementById('closeModal').addEventListener('click', closeModal);
+    document.getElementById('arrowPrev').addEventListener('click', () => navigateTo(currentIndex - 1, 'prev'));
+    document.getElementById('arrowNext').addEventListener('click', () => navigateTo(currentIndex + 1, 'next'));
 }
 
-// ════════════════════════════════════════════════════════════════
-//  UTILS
-// ════════════════════════════════════════════════════════════════
 function formatSize(b) {
     if (!b) return '—';
     const k = 1024, u = ['B','KB','MB','GB'], i = Math.floor(Math.log(b)/Math.log(k));
     return (b/Math.pow(k,i)).toFixed(1) + ' ' + u[i];
 }
 
-// ════════════════════════════════════════════════════════════════
-//  EXPOSE globals
-// ════════════════════════════════════════════════════════════════
-window.openModal  = openModal;
-window.deleteFile = deleteFile;
+window.openModal   = openModal;
+window.deleteFile  = deleteFile;
 window.applyConfig = applyConfig;
 window.dismissConfig = dismissConfig;
 
 init();
 </script>
-
-<!-- ═══════════════════════════════════════════════════════════════
-     GUIDE D'INSTALLATION SUPABASE
-     ═══════════════════════════════════════════════════════════════
-     
-  1. Va sur https://supabase.com et connecte-toi
-  
-  2. Crée un nouveau projet (ou utilise un existant)
-  
-  3. STORAGE — créer un bucket :
-       Dashboard > Storage > New bucket
-       Nom : gallery
-       Public : ✅ OUI
-  
-  4. DATABASE — créer la table :
-       Dashboard > SQL Editor > colle et exécute :
-
-       create table gallery_files (
-         id           bigserial primary key,
-         name         text not null,
-         size         bigint default 0,
-         mime_type    text,
-         file_type    text,
-         url          text not null,
-         storage_path text,
-         created_at   timestamptz default now()
-       );
-       alter table gallery_files enable row level security;
-       create policy "Public read"   on gallery_files for select using (true);
-       create policy "Public insert" on gallery_files for insert with check (true);
-       create policy "Public delete" on gallery_files for delete using (true);
-
-       -- Autoriser upload public dans le bucket :
-       create policy "Public upload" on storage.objects for insert
-         with check (bucket_id = 'gallery');
-       create policy "Public read storage" on storage.objects for select
-         using (bucket_id = 'gallery');
-       create policy "Public delete storage" on storage.objects for delete
-         using (bucket_id = 'gallery');
-  
-  5. Récupère tes clés :
-       Dashboard > Settings > API
-       - Project URL   → copie dans le champ URL
-       - anon/public   → copie dans le champ Key
-  
-  6. Héberge le fichier HTML :
-       Option A : Netlify Drop — glisse le fichier sur https://app.netlify.com/drop
-       Option B : GitHub Pages — push dans un repo public
-  
-═══════════════════════════════════════════════════════════════ -->
 </body>
 </html>
